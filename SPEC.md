@@ -84,6 +84,20 @@ habit chips (water/steps/sleep) · this-week 7-dot strip · top surfaced insight
 Social features · wearables beyond Health Connect/HealthKit · AI-written coaching · paid food API ·
 web app · push-notification campaigns · full micronutrient tracking · supplement tracking.
 
+## Data architecture (Phase 1 — implemented)
+Three layers so dashboards stay instant:
+1. **Typed log tables** — structured truth (`set_logs`, `meal_logs`/`meal_log_items`,
+   `liquid_logs`, `weight_logs`, `body_measurement_logs`, `habit_logs`, `workout_sessions`).
+2. **`log_events`** — append-only event STREAM (timelines, streaks, audit); every log writes one row.
+3. **`daily_user_summaries`** — pre-aggregated per-user/day analytics CACHE (built out in Phase 6).
+
+Principles: logged nutrition/training values are **snapshotted at log time** (never recomputed from
+mutable `foods`/`plan` rows); every log carries a **`source`** (`input_source` enum) and meals carry
+**estimation/confidence** fields for data-quality weighting; **plan-vs-actual** links
+(`plan_workout_exercise_id`, `plan_meal_item_id`, etc.) drive adherence analytics; `user_id` is
+denormalized onto child tables so RLS is a fast `user_id = auth.uid()`. `insights` stores generated
+reflections. 24 tables total; migrations in `supabase/migrations/`.
+
 ## Config facts
 - Supabase project ref: `tqcavomczpzqgzmzwwkz` (org "IshIsmael's Org", region eu-west-1)
 - Bundle id: `com.tola.app`

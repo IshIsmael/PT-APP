@@ -16,18 +16,21 @@ Goal: app boots in Expo Go, talks to Supabase, one button does a real read/write
 - [x] Temp `ping` table (RLS) + Home round-trip (read recent + insert on tap)
 - [x] Verify: `npm run go`, open in Expo Go, confirmed read/write round-trip on device
 
-## Phase 1 — Data Model & Security
+## Phase 1 — Data Model & Security  ✅ DONE
 Goal: the structured, analytics-ready DB; normalized + RLS-locked.
-- [ ] Design schema: profiles, user_goals, plans, plan_workouts, exercises, plan_meals,
-      foods (OFF cache), ingredients, log_events (append-only timeline), workout_sessions,
-      set_logs (nullable RPE/superset/warmup for Advanced mode), meal_logs, liquid_logs,
-      weight_logs, habit_logs, streaks, badges, shopping_list_items
-- [ ] Migrations + indexes on (user_id, logged_at) for every log table
-- [ ] Enable RLS everywhere; policy: user reads/writes only own rows
-- [ ] Generate TypeScript types from schema
-- [ ] Seed exercise library + base food units
-- [ ] Drop the temporary `ping` table
-- [ ] Verify: two-user RLS isolation + type-safe queries
+Three-layer analytics model: typed logs → `log_events` stream → `daily_user_summaries` cache.
+- [x] Design schema: 24 tables incl. profiles, user_goals, plans/plan_workouts/plan_meals,
+      exercises, foods (OFF cache + ingredients), log_events timeline, workout_sessions,
+      set_logs (set_type/RPE/RIR/tempo/superset for Advanced), meal_logs + meal_log_items
+      (snapshotted nutrition + confidence), liquid/weight/body_measurement/habit logs,
+      daily_user_summaries, insights, streaks, badges, user_badges, shopping_list_items
+- [x] Migrations (0001 schema, 0002 hardening, 0003 seed) + indexes on (user_id, day)
+- [x] RLS on all 24 tables; source + plan-vs-actual links on every log
+- [x] Generate TypeScript types → src/lib/database.types.ts, wired into typed client
+- [x] Seed: 38 exercises · 27 base foods · 9 badges
+- [x] Drop the temporary `ping` table
+- [x] Verify: security advisor clean; anon access denied (RLS enforcing). Type-safe queries
+      compile. Full two-user data-isolation test runs in Phase 2 (needs real auth users).
 
 ## Phase 2 — Auth & Onboarding (auth-first)
 - [ ] Email magic link + Google + Apple sign-in (Supabase Auth)
