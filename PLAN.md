@@ -6,7 +6,7 @@ store-ready. See `SPEC.md` for all locked product decisions. Verify each phase o
 
 ---
 
-## Phase 0 — Foundation & Walking Skeleton  ✅ (in progress)
+## Phase 0 — Foundation & Walking Skeleton  ✅ DONE
 Goal: app boots in Expo Go, talks to Supabase, one button does a real read/write round-trip.
 - [x] Scaffold Expo SDK 55 TS app (expo-router, NativeWind v4 + Tailwind v3)
 - [x] Add deps: supabase-js, tanstack-query, zustand, reanimated, async-storage, gesture-handler
@@ -14,7 +14,7 @@ Goal: app boots in Expo Go, talks to Supabase, one button does a real read/write
 - [x] Root layout: QueryClientProvider + SafeAreaProvider + GestureHandlerRootView + global.css
 - [x] 5-tab shell (Home / Plan / Nutrition / Progress / Profile), dark-first
 - [x] Temp `ping` table (RLS) + Home round-trip (read recent + insert on tap)
-- [ ] Verify: `npm run go`, open in Expo Go, confirm read/write round-trip on device
+- [x] Verify: `npm run go`, open in Expo Go, confirmed read/write round-trip on device
 
 ## Phase 1 — Data Model & Security
 Goal: the structured, analytics-ready DB; normalized + RLS-locked.
