@@ -1,0 +1,108 @@
+# Tola — Build Plan
+
+Sequential phases, each independently shippable and verifiable, taking Tola from empty folder to
+store-ready. See `SPEC.md` for all locked product decisions. Verify each phase on-device via
+`npm run go` (Expo Go, SDK 55).
+
+---
+
+## Phase 0 — Foundation & Walking Skeleton  ✅ (in progress)
+Goal: app boots in Expo Go, talks to Supabase, one button does a real read/write round-trip.
+- [x] Scaffold Expo SDK 55 TS app (expo-router, NativeWind v4 + Tailwind v3)
+- [x] Add deps: supabase-js, tanstack-query, zustand, reanimated, async-storage, gesture-handler
+- [x] Create Supabase project `tola-dev`; wire EXPO_PUBLIC_* env + client
+- [x] Root layout: QueryClientProvider + SafeAreaProvider + GestureHandlerRootView + global.css
+- [x] 5-tab shell (Home / Plan / Nutrition / Progress / Profile), dark-first
+- [x] Temp `ping` table (RLS) + Home round-trip (read recent + insert on tap)
+- [ ] Verify: `npm run go`, open in Expo Go, confirm read/write round-trip on device
+
+## Phase 1 — Data Model & Security
+Goal: the structured, analytics-ready DB; normalized + RLS-locked.
+- [ ] Design schema: profiles, user_goals, plans, plan_workouts, exercises, plan_meals,
+      foods (OFF cache), ingredients, log_events (append-only timeline), workout_sessions,
+      set_logs (nullable RPE/superset/warmup for Advanced mode), meal_logs, liquid_logs,
+      weight_logs, habit_logs, streaks, badges, shopping_list_items
+- [ ] Migrations + indexes on (user_id, logged_at) for every log table
+- [ ] Enable RLS everywhere; policy: user reads/writes only own rows
+- [ ] Generate TypeScript types from schema
+- [ ] Seed exercise library + base food units
+- [ ] Drop the temporary `ping` table
+- [ ] Verify: two-user RLS isolation + type-safe queries
+
+## Phase 2 — Auth & Onboarding (auth-first)
+- [ ] Email magic link + Google + Apple sign-in (Supabase Auth)
+- [ ] Gate app behind auth; session persistence via AsyncStorage
+- [ ] Balanced ~8–10 step onboarding (bio, units, goal, activity, equipment, diet/allergies,
+      training days, meals/day, schedule constraints)
+- [ ] Post-intake fork: Generate smart plan / Build my own / Redo with input
+- [ ] Verify: fresh user signs in → onboards → data persists → fork routes correctly
+
+## Phase 3 — Algorithmic Plan Engine
+- [ ] Calorie/macro module (Mifflin-St Jeor × activity, goal adjustment, macro split)
+- [ ] Training generator (split by days/equipment, progressive overload, volume landmarks)
+- [ ] Meal generator (hit macros from food pool, respect diet tags + allergen exclusions, meals/day)
+- [ ] Plan tab: view, edit any workout/meal, regenerate, "redo with extra input"
+- [ ] Unit tests on the engine (pure functions)
+- [ ] Verify: 3 distinct intake profiles → sensibly different, macro-correct plans
+
+## Phase 4 — The Logging Loop (the spine)
+- [ ] Home: weekday strip, animated macro ring hero, day-completion bar + coach headline,
+      session card, meals card, water bottle, habit chips, week dots, top insight
+- [ ] Workout modal: Standard/Advanced toggle → logs set_logs + session; auto rest timer (by goal)
+- [ ] Meals: photo card → "Did you eat it?" yes/no → log + advance to next meal; quick-add snack
+- [ ] Water/liquid bottle card (editable liquid type) → liquid_logs; auto goal w/ override
+- [ ] Weight + habit chips quick logging
+- [ ] Optimistic writes + offline outbox queue (logging never blocks on network)
+- [ ] Verify: log a full day offline → reconnect → syncs; Home reflects live
+
+## Phase 4.5 — Health Integrations
+- [ ] Health Connect (Android) + HealthKit (iOS): permissions + sync adapters (steps/sleep/weight)
+- [ ] Manual fallback when unavailable/denied
+- [ ] Verify: phone health data flows into habit chips + weight trend
+
+## Phase 5 — Nutrition Tab, Barcode & Shopping List
+- [ ] Nutrition tab: meal plan CRUD/generate, macro/calorie views
+- [ ] Open Food Facts: barcode scan (expo-camera) → fetch → cache to foods; show health info
+- [ ] Shopping list auto-derived from meal plan + manual add; barcode scan ticks items off
+- [ ] Verify: scan real products → correct nutrition, list item checks off, macros update
+
+## Phase 6 — Progress, Insights & Streaks
+- [ ] Aggregations over log_events (weight, volume, calories, adherence, macros over time)
+- [ ] Progress charts + supportive, data-backed insight cards
+- [ ] Streak engine (hit-daily-plan rule + grace) + milestone badges (consistency + body-goal)
+- [ ] Surface top insight on Home
+- [ ] (Optional) begin micronutrient tracking
+- [ ] Verify: seed 30 days → charts, insights, streaks, badges correct
+
+## Phase 7 — Monetization
+- [ ] AdMob: banner on secondary screens + interstitial at natural breaks + during rest timers
+      (never block a log action)
+- [ ] RevenueCat: `no_ads` one-time entitlement; gate ad rendering on it
+- [ ] Remove-ads paywall: one SKU, one screen, "Restore purchases", contextual trigger
+- [ ] Entitlement check on launch + restore flow
+- [ ] Verify: sandbox purchase removes all ads instantly; restore works on reinstall
+
+## Phase 8 — Design System & UI Polish
+- [ ] Finalize design tokens (accent palette via 2–3 moodboard options) + light/dark
+- [ ] Shared component kit (cards, rings, chips, modals, bottle, weekday strip)
+- [ ] Native patterns (haptics, sheet modals, large titles, gestures, safe areas)
+- [ ] Micro-interactions (ring fill, bottle fill, meal advance) w/ Reanimated; 60fps audit
+- [ ] Accessibility (dynamic type, contrast, labels, reduced-motion)
+- [ ] i18n layer wired (English strings)
+- [ ] Verify: visual review iOS + Android, dark/light, small + large devices
+
+## Phase 9 — Hardening & Store Launch
+- [ ] Error boundaries; account deletion + data export (store-required)
+- [ ] EAS Build + EAS Update; icons, splash, screenshots, privacy labels
+- [ ] Local reminders (water/workout/meal-log)
+- [ ] Store listings (ads/IAP), data-safety + privacy policy
+- [ ] QA on real devices; performance + cold-start budget
+- [ ] Submit to TestFlight / Play internal → production
+- [ ] Verify: clean install onboarding-to-purchase works end-to-end on both stores
+
+---
+
+### Validation strategy (every phase)
+- On-device check via Expo Go (`npm run go`).
+- Unit tests on the **plan engine** and **insights aggregations** (highest-risk pure functions).
+- Two-user RLS check after any schema change.
