@@ -1,33 +1,69 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 
 type AuthState = {
   session: Session | null;
   loading: boolean;
+  // null = unknown/loading; true/false once the profile has been checked.
+  onboardingComplete: boolean | null;
+  refreshOnboarding: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthState>({ session: null, loading: true });
+const AuthContext = createContext<AuthState>({
+  session: null,
+  loading: true,
+  onboardingComplete: null,
+  refreshOnboarding: async () => {},
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    // Restore any persisted session on launch...
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
-    // ...then keep in sync with sign-in / sign-out / token refresh.
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next);
-    });
-    return () => sub.subscription.unsubscribe();
+  const loadOnboarding = useCallback(async (userId: string | undefined) => {
+    if (!userId) {
+      setOnboardingComplete(null);
+      return;
+    }
+    const { data } = await supabase
+      .from('profiles')
+      .select('onboarding_completed_at')
+      .eq('id', userId)
+      .maybeSingle();
+    setOnboardingComplete(!!data?.onboarding_completed_at);
   }, []);
 
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data }) => {
+      setSession(data.session);
+      await loadOnboarding(data.session?.user.id);
+      setLoading(false);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, next) => {
+      setSession(next);
+      await loadOnboarding(next?.user.id);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [loadOnboarding]);
+
+  const refreshOnboarding = useCallback(
+    () => loadOnboarding(session?.user.id),
+    [loadOnboarding, session?.user.id],
+  );
+
   return (
-    <AuthContext.Provider value={{ session, loading }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ session, loading, onboardingComplete, refreshOnboarding }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

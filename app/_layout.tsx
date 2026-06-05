@@ -21,19 +21,28 @@ const queryClient = new QueryClient({
 // Auth-first gating: unauthenticated users are kept in the (auth) group;
 // authenticated users are kept out of it. Onboarding gating is layered on in 2b.
 function RootNavigator() {
-  const { session, loading } = useAuth();
+  const { session, loading, onboardingComplete } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     if (loading) return;
-    const inAuth = segments[0] === '(auth)';
-    if (!session && !inAuth) {
-      router.replace('/(auth)/sign-in');
-    } else if (session && inAuth) {
+    const group = segments[0];
+    const inAuth = group === '(auth)';
+    const inOnboarding = group === 'onboarding';
+
+    if (!session) {
+      if (!inAuth) router.replace('/(auth)/sign-in');
+      return;
+    }
+    // Signed in. Wait until we know onboarding status before routing.
+    if (onboardingComplete === null) return;
+    if (!onboardingComplete) {
+      if (!inOnboarding) router.replace('/onboarding');
+    } else if (inAuth || inOnboarding) {
       router.replace('/(tabs)');
     }
-  }, [session, loading, segments, router]);
+  }, [session, loading, onboardingComplete, segments, router]);
 
   if (loading) {
     return (
@@ -46,6 +55,7 @@ function RootNavigator() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
+      <Stack.Screen name="onboarding" />
       <Stack.Screen name="(tabs)" />
     </Stack>
   );
