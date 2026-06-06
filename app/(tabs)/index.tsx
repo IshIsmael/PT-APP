@@ -6,6 +6,7 @@ import { useAuth } from '../../src/lib/auth';
 import { useActiveGoal } from '../../src/lib/goals';
 import { useActiveMealPlan, useActiveTrainingPlan } from '../../src/lib/plans';
 import {
+  localDay,
   useLogHabit,
   useLogMeal,
   useLogWater,
@@ -14,6 +15,7 @@ import {
   useTodaySummary,
   type LogMealInput,
 } from '../../src/lib/logging';
+import { buildInsights, useDailySummaries } from '../../src/lib/progress';
 import { MacroRing } from '../../src/components/MacroRing';
 import { NumberModal } from '../../src/components/NumberModal';
 
@@ -75,6 +77,7 @@ export default function Home() {
   const { data: mealPlan } = useActiveMealPlan(userId);
   const { data: trainingPlan } = useActiveTrainingPlan(userId);
   const { data: loggedMeals } = useTodayMealLog(userId);
+  const { data: weekSummaries } = useDailySummaries(userId, 7);
 
   const logMeal = useLogMeal(userId);
   const logWater = useLogWater(userId);
@@ -87,6 +90,11 @@ export default function Home() {
   const today = new Date();
   const weekday = today.getDay();
   const weekStart = startOfWeek(today);
+
+  const adherenceHit = new Map(
+    (weekSummaries ?? []).map((s) => [s.day, (s.adherence_score ?? 0) >= 0.6]),
+  );
+  const topInsight = buildInsights(weekSummaries ?? [])[0];
 
   // Next un-logged planned meal (skip ones already eaten or dismissed).
   const loggedPlanIds = new Set((loggedMeals ?? []).map((m) => m.plan_meal_id).filter(Boolean));
@@ -157,6 +165,11 @@ export default function Home() {
                     {d.getDate()}
                   </Text>
                 </View>
+                <View
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    adherenceHit.get(localDay(d)) ? 'bg-accent' : 'bg-transparent'
+                  }`}
+                />
               </View>
             );
           })}
@@ -198,6 +211,15 @@ export default function Home() {
             </>
           )}
         </View>
+
+        {/* Top insight */}
+        {topInsight && (
+          <View className="gap-1 rounded-3xl border border-border bg-bg-elevated p-5">
+            <Text className="text-xs uppercase tracking-wide text-fg-faint">Insight</Text>
+            <Text className="text-base font-semibold text-fg">{topInsight.title}</Text>
+            <Text className="text-sm text-fg-muted">{topInsight.detail}</Text>
+          </View>
+        )}
 
         {/* Today's session */}
         <View className="gap-2 rounded-3xl border border-border bg-bg-elevated p-5">
