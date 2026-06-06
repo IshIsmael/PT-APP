@@ -50,10 +50,10 @@ one-time `eas init` + an `EXPO_TOKEN` repo secret — see the workflow header).
 
 ## Status
 
-**Phases 0–6 complete** (+ CI): app shell, Supabase backend (24-table schema + RLS), email-OTP auth +
-onboarding, algorithmic plan engine, the logging loop (Home + workout + daily-summary cache), barcode
-
-- shopping list, and Progress (trends, insights, streaks, badges). Reviewed via a multi-agent audit.
+**Phases 0–6 complete** (plus CI): app shell, Supabase backend (24-table schema + RLS), email-OTP
+auth and onboarding, the algorithmic plan engine, the logging loop (Home, workout, daily-summary
+cache), barcode scanning with a shopping list, and Progress (trends, insights, streaks, badges).
+Reviewed via a multi-agent audit.
 
 Remaining (needs developer accounts + a custom dev build, not Expo Go): health sync
 (Health Connect/HealthKit), monetization (RevenueCat + AdMob), design polish, and store launch.
