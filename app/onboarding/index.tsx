@@ -22,6 +22,7 @@ import {
   StepHeader,
   StepShell,
 } from '../../src/components/onboarding-ui';
+import { Sprout } from '../../src/components/Sprout';
 
 type Units = 'metric' | 'imperial';
 type Sex = 'male' | 'female' | 'unspecified';
@@ -205,14 +206,17 @@ export default function Onboarding() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View className="gap-3 px-6 pb-4 pt-2">
-          <View className="flex-row items-center gap-3">
-            {step > 0 && (
-              <Pressable onPress={() => setStep((s) => s - 1)} hitSlop={12}>
-                <Text className="text-base text-fg-muted">‹ Back</Text>
-              </Pressable>
-            )}
-            <View className="flex-1" />
-            <Text className="text-xs text-fg-faint">
+          <View className="flex-row items-center justify-between">
+            <View className="w-16">
+              {step > 0 && (
+                <Pressable onPress={() => setStep((s) => s - 1)} hitSlop={12}>
+                  <Text className="text-base text-fg-muted">‹ Back</Text>
+                </Pressable>
+              )}
+            </View>
+            {/* The sprout grows as you move through setup — you're already growing. */}
+            <Sprout streak={Math.round(((step + 1) / TOTAL_STEPS) * 30)} size={52} />
+            <Text className="w-16 text-right text-xs text-fg-faint">
               {step + 1} / {TOTAL_STEPS}
             </Text>
           </View>

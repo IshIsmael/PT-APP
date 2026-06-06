@@ -5,14 +5,19 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../src/lib/supabase';
+import { Sprout } from '../../src/components/Sprout';
 
 type Stage = 'email' | 'code';
+
+const DISPLAY_BOLD = 'Fraunces_700Bold';
+const CTA_GLOW = { boxShadow: '0 8px 24px rgba(224, 122, 95, 0.30)' } as const;
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
@@ -44,8 +49,11 @@ export default function SignIn() {
       type: 'email',
     });
     setLoading(false);
-    // On success, onAuthStateChange fires and the root navigator redirects.
     if (error) Alert.alert('Invalid or expired code', error.message);
+  }
+
+  function comingSoon(provider: string) {
+    Alert.alert(`${provider} — coming soon`, 'For now, your email gets you in instantly.');
   }
 
   return (
@@ -54,13 +62,20 @@ export default function SignIn() {
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View className="flex-1 justify-center gap-8 px-6">
-          <View className="gap-2">
-            <Text className="text-4xl font-bold tracking-tight text-fg">Tola</Text>
-            <Text className="text-base text-fg-muted">
+        <ScrollView
+          contentContainerClassName="flex-grow justify-center gap-9 px-7 py-10"
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Brand */}
+          <View className="items-center gap-3">
+            <Sprout streak={9} size={104} />
+            <Text className="text-6xl text-fg" style={{ fontFamily: DISPLAY_BOLD }}>
+              Tola
+            </Text>
+            <Text className="px-4 text-center text-base text-fg-muted">
               {stage === 'email'
-                ? 'Sign in with your email to get started.'
-                : `Enter the 6-digit code we sent to ${email.trim().toLowerCase()}.`}
+                ? 'Let’s grow something good. Sign in with your email — no password to remember.'
+                : `We sent a 6-digit code to ${email.trim().toLowerCase()}.`}
             </Text>
           </View>
 
@@ -77,17 +92,19 @@ export default function SignIn() {
                 inputMode="email"
                 returnKeyType="go"
                 onSubmitEditing={sendCode}
+                style={{ borderCurve: 'continuous' }}
                 className="rounded-2xl border border-border bg-bg-subtle px-4 py-4 text-base text-fg"
               />
               <Pressable
                 onPress={sendCode}
                 disabled={loading}
-                className="items-center rounded-2xl bg-accent py-4 active:opacity-80"
+                style={[{ borderCurve: 'continuous' }, CTA_GLOW]}
+                className="items-center rounded-2xl bg-accent py-4 active:opacity-90"
               >
                 {loading ? (
                   <ActivityIndicator color="#171210" />
                 ) : (
-                  <Text className="font-semibold text-base text-bg">Send code</Text>
+                  <Text className="font-semibold text-base text-bg">Send my code</Text>
                 )}
               </Pressable>
             </View>
@@ -103,12 +120,14 @@ export default function SignIn() {
                 maxLength={6}
                 returnKeyType="go"
                 onSubmitEditing={verifyCode}
-                className="rounded-2xl border border-border bg-bg-subtle px-4 py-4 text-center text-2xl tracking-[8px] text-fg"
+                style={{ borderCurve: 'continuous', fontVariant: ['tabular-nums'] }}
+                className="rounded-2xl border border-border bg-bg-subtle px-4 py-4 text-center text-3xl tracking-[10px] text-fg"
               />
               <Pressable
                 onPress={verifyCode}
                 disabled={loading || code.trim().length < 6}
-                className="items-center rounded-2xl bg-accent py-4 active:opacity-80 disabled:opacity-50"
+                style={[{ borderCurve: 'continuous' }, code.trim().length >= 6 ? CTA_GLOW : null]}
+                className="items-center rounded-2xl bg-accent py-4 active:opacity-90 disabled:opacity-40"
               >
                 {loading ? (
                   <ActivityIndicator color="#171210" />
@@ -126,36 +145,34 @@ export default function SignIn() {
             <View className="gap-3">
               <View className="flex-row items-center gap-3">
                 <View className="h-px flex-1 bg-border" />
-                <Text className="text-xs text-fg-faint">or</Text>
+                <Text className="text-xs text-fg-faint">or continue with</Text>
                 <View className="h-px flex-1 bg-border" />
               </View>
-              {/* Wired but inactive until OAuth credentials are configured. */}
-              <Pressable
-                onPress={() =>
-                  Alert.alert(
-                    'Coming soon',
-                    'Google sign-in is set up after OAuth credentials are added.',
-                  )
-                }
-                className="items-center rounded-2xl border border-border bg-bg-subtle py-4 opacity-60"
-              >
-                <Text className="font-medium text-base text-fg">Continue with Google</Text>
-              </Pressable>
-              <Pressable
-                onPress={() =>
-                  Alert.alert(
-                    'Coming soon',
-                    'Apple sign-in needs an Apple Developer account first.',
-                  )
-                }
-                className="items-center rounded-2xl border border-border bg-bg-subtle py-4 opacity-60"
-              >
-                <Text className="font-medium text-base text-fg">Continue with Apple</Text>
-              </Pressable>
+              <View className="flex-row gap-3">
+                <SocialButton label="Google" onPress={() => comingSoon('Google')} />
+                <SocialButton label="Apple" onPress={() => comingSoon('Apple')} />
+              </View>
             </View>
           )}
-        </View>
+
+          <Text className="px-6 text-center text-xs text-fg-faint">One day at a time. 🌱</Text>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+function SocialButton({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{ borderCurve: 'continuous' }}
+      className="flex-1 flex-row items-center justify-center gap-2 rounded-2xl border border-border bg-bg-elevated py-4 active:opacity-80"
+    >
+      <Text className="font-medium text-base text-fg">{label}</Text>
+      <View className="rounded-full bg-bg-subtle px-2 py-0.5">
+        <Text className="text-[10px] uppercase tracking-wide text-fg-faint">soon</Text>
+      </View>
+    </Pressable>
   );
 }

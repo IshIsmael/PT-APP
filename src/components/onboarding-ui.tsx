@@ -1,11 +1,15 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 
+const DISPLAY_BOLD = 'Fraunces_700Bold';
+const CTA_GLOW = { boxShadow: '0 8px 24px rgba(224, 122, 95, 0.30)' } as const;
+const CONTINUOUS = { borderCurve: 'continuous' } as const;
+
 export function ProgressBar({ step, total }: { step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
   return (
-    <View className="h-1.5 overflow-hidden rounded-full bg-bg-subtle">
-      <View className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+    <View className="h-2 overflow-hidden rounded-full bg-bg-subtle">
+      <View className="h-full rounded-full bg-sage" style={{ width: `${pct}%` }} />
     </View>
   );
 }
@@ -13,13 +17,15 @@ export function ProgressBar({ step, total }: { step: number; total: number }) {
 export function StepHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <View className="gap-2">
-      <Text className="text-3xl font-bold tracking-tight text-fg">{title}</Text>
-      {subtitle ? <Text className="text-base text-fg-muted">{subtitle}</Text> : null}
+      <Text className="text-4xl text-fg" style={{ fontFamily: DISPLAY_BOLD }}>
+        {title}
+      </Text>
+      {subtitle ? <Text className="text-base leading-6 text-fg-muted">{subtitle}</Text> : null}
     </View>
   );
 }
 
-// Single-select option card.
+// Single-select option card with a tactile check.
 export function ChoiceCard({
   label,
   description,
@@ -34,14 +40,22 @@ export function ChoiceCard({
   return (
     <Pressable
       onPress={onPress}
-      className={`rounded-2xl border p-4 ${
+      style={CONTINUOUS}
+      className={`flex-row items-center gap-3 rounded-2xl border p-4 ${
         selected ? 'border-accent bg-accent/10' : 'border-border bg-bg-elevated'
       } active:opacity-80`}
     >
-      <Text className={`font-semibold text-base ${selected ? 'text-accent' : 'text-fg'}`}>
-        {label}
-      </Text>
-      {description ? <Text className="mt-0.5 text-sm text-fg-muted">{description}</Text> : null}
+      <View className="flex-1">
+        <Text className="font-semibold text-base text-fg">{label}</Text>
+        {description ? <Text className="mt-0.5 text-sm text-fg-muted">{description}</Text> : null}
+      </View>
+      <View
+        className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
+          selected ? 'border-accent bg-accent' : 'border-border'
+        }`}
+      >
+        {selected && <Text className="text-xs font-bold text-bg">✓</Text>}
+      </View>
     </Pressable>
   );
 }
@@ -59,8 +73,8 @@ export function Chip({
   return (
     <Pressable
       onPress={onPress}
-      className={`rounded-full border px-4 py-2 ${
-        selected ? 'border-accent bg-accent/10' : 'border-border bg-bg-subtle'
+      className={`rounded-full border px-4 py-2.5 ${
+        selected ? 'border-accent bg-accent/15' : 'border-border bg-bg-subtle'
       } active:opacity-80`}
     >
       <Text className={`text-sm ${selected ? 'font-semibold text-accent' : 'text-fg-muted'}`}>
@@ -86,7 +100,10 @@ export function Field({
   maxLength?: number;
 }) {
   return (
-    <View className="flex-row items-center rounded-2xl border border-border bg-bg-subtle px-4">
+    <View
+      style={CONTINUOUS}
+      className="flex-row items-center rounded-2xl border border-border bg-bg-subtle px-4"
+    >
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -112,11 +129,13 @@ export function PrimaryButton({
   disabled?: boolean;
   loading?: boolean;
 }) {
+  const active = !disabled && !loading;
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
-      className="items-center rounded-2xl bg-accent py-4 active:opacity-80 disabled:opacity-40"
+      style={[CONTINUOUS, active ? CTA_GLOW : null]}
+      className="items-center rounded-2xl bg-accent py-4 active:opacity-90 disabled:opacity-40"
     >
       {loading ? (
         <ActivityIndicator color="#171210" />
