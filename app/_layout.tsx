@@ -57,6 +57,7 @@ function RootNavigator() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="workout/[planWorkoutId]" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }

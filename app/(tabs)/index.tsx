@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/lib/auth';
 import { useActiveGoal } from '../../src/lib/goals';
 import { useActiveMealPlan, useActiveTrainingPlan } from '../../src/lib/plans';
@@ -65,6 +66,7 @@ type ModalConfig = {
 };
 
 export default function Home() {
+  const router = useRouter();
   const { session } = useAuth();
   const userId = session?.user.id;
 
@@ -211,6 +213,12 @@ export default function Home() {
                   .join(', ')}
                 {todaysWorkout.exercises.length > 3 ? '…' : ''}
               </Text>
+              <Pressable
+                onPress={() => router.push(`/workout/${todaysWorkout.id}`)}
+                className="mt-1 items-center rounded-2xl bg-accent py-3 active:opacity-80"
+              >
+                <Text className="font-semibold text-bg">Start workout</Text>
+              </Pressable>
             </>
           ) : (
             <Text className="text-sm text-fg-muted">
