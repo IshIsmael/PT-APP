@@ -95,15 +95,15 @@ export default function SignIn() {
             <View className="gap-3">
               <TextInput
                 value={code}
-                onChangeText={(t) => setCode(t.replace(/[^0-9]/g, ''))}
-                placeholder="Enter code"
+                onChangeText={setCode}
+                placeholder="123456"
                 placeholderTextColor="#6B6B76"
                 keyboardType="number-pad"
                 inputMode="numeric"
-                maxLength={10}
+                maxLength={6}
                 returnKeyType="go"
                 onSubmitEditing={verifyCode}
-                className="bg-bg-subtle text-fg rounded-2xl px-4 py-4 text-2xl tracking-[6px] text-center border border-border"
+                className="bg-bg-subtle text-fg rounded-2xl px-4 py-4 text-2xl tracking-[8px] text-center border border-border"
               />
               <Pressable
                 onPress={verifyCode}
