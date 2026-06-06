@@ -18,6 +18,7 @@ import {
   useShoppingList,
   useToggleShoppingItem,
 } from '../src/lib/shopping';
+import { hapticSelect } from '../src/lib/haptics';
 
 export default function Shopping() {
   const router = useRouter();
@@ -89,11 +90,18 @@ export default function Shopping() {
           </Text>
         </View>
       ) : (
-        <ScrollView contentContainerClassName="px-5 pb-8 gap-1">
+        <ScrollView
+          contentContainerClassName="px-5 pb-8 gap-1"
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
           {items.map((item) => (
             <Pressable
               key={item.id}
-              onPress={() => toggle.mutate({ id: item.id, is_checked: item.is_checked })}
+              onPress={() => {
+                hapticSelect();
+                toggle.mutate({ id: item.id, is_checked: item.is_checked });
+              }}
               className="flex-row items-center gap-3 rounded-2xl px-2 py-3 active:opacity-70"
             >
               <View

@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/lib/auth';
 import {
@@ -17,6 +19,7 @@ import {
   type FinishedExercise,
   type SessionExercise,
 } from '../../src/lib/workout';
+import { hapticSelect, hapticSuccess } from '../../src/lib/haptics';
 
 type SetEntry = { weight: string; reps: string; done: boolean };
 
@@ -26,7 +29,7 @@ export default function WorkoutScreen() {
   const { data: workout, isLoading } = usePlanWorkout(planWorkoutId);
 
   return (
-    <SafeAreaView className="flex-1 bg-bg">
+    <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
       {isLoading || !workout ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#E07A5F" />
@@ -46,6 +49,7 @@ function WorkoutRunner({
   userId?: string;
 }) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const finish = useFinishWorkout(userId);
 
   const [startedAt] = useState(() => new Date().toISOString());
@@ -61,10 +65,17 @@ function WorkoutRunner({
   );
   const [rest, setRest] = useState<number | null>(null);
 
-  // Rest countdown — only mutates state inside the timeout callback.
+  // Rest countdown — buzzes when rest is over so you can keep eyes off the screen.
   useEffect(() => {
     if (rest === null) return;
-    const t = setTimeout(() => setRest((r) => (r && r > 1 ? r - 1 : null)), 1000);
+    const t = setTimeout(() => {
+      if (rest <= 1) {
+        hapticSuccess();
+        setRest(null);
+      } else {
+        setRest(rest - 1);
+      }
+    }, 1000);
     return () => clearTimeout(t);
   }, [rest]);
 
@@ -82,7 +93,10 @@ function WorkoutRunner({
     const entry = entries[exIdx];
     const wasDone = entry.sets[setIdx].done;
     updateSet(exIdx, setIdx, { done: !wasDone });
-    if (!wasDone && entry.ex.restSeconds) setRest(entry.ex.restSeconds);
+    if (!wasDone) {
+      hapticSelect();
+      if (entry.ex.restSeconds) setRest(entry.ex.restSeconds);
+    }
   }
 
   // A set "counts" only if it's marked done AND has positive reps — matching the
@@ -102,7 +116,10 @@ function WorkoutRunner({
     finish.mutate(
       { planWorkoutId: workout.id, name: workout.name, mode: 'standard', startedAt, exercises },
       {
-        onSuccess: () => router.back(),
+        onSuccess: () => {
+          hapticSuccess();
+          router.back();
+        },
         onError: (e) =>
           Alert.alert('Could not save', e instanceof Error ? e.message : 'Try again.'),
       },
@@ -110,16 +127,26 @@ function WorkoutRunner({
   }
 
   return (
-    <View className="flex-1">
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <View className="flex-row items-center justify-between px-5 py-3">
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Text className="text-base text-fg-muted">Close</Text>
         </Pressable>
         <Text className="font-semibold text-base text-fg">{workout.name}</Text>
-        <Text className="text-xs text-fg-faint">{doneCount} sets</Text>
+        <Text className="text-xs text-fg-faint" style={{ fontVariant: ['tabular-nums'] }}>
+          {doneCount} sets
+        </Text>
       </View>
 
-      <ScrollView contentContainerClassName="px-5 pb-32 gap-4" keyboardShouldPersistTaps="handled">
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="px-5 pb-6 gap-4"
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
         {entries.map((entry, exIdx) => (
           <View
             key={entry.ex.id}
@@ -179,8 +206,11 @@ function WorkoutRunner({
         ))}
       </ScrollView>
 
-      {/* Rest timer + finish */}
-      <View className="absolute inset-x-0 bottom-0 gap-2 border-t border-border bg-bg px-5 pb-8 pt-3">
+      {/* Rest timer + finish — in normal flow so the keyboard lifts it */}
+      <View
+        className="gap-2 border-t border-border bg-bg px-5 pt-3"
+        style={{ paddingBottom: insets.bottom + 12 }}
+      >
         {rest !== null && (
           <View className="flex-row items-center justify-between rounded-2xl bg-bg-subtle px-4 py-2">
             <Text className="text-sm text-fg-muted">Rest</Text>
@@ -204,6 +234,6 @@ function WorkoutRunner({
           )}
         </Pressable>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

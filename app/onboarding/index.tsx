@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/lib/supabase';
 import { useAuth } from '../../src/lib/auth';
 import { computeTargets } from '../../src/lib/nutrition';
@@ -20,9 +20,9 @@ import {
   PrimaryButton,
   ProgressBar,
   StepHeader,
-  StepShell,
 } from '../../src/components/onboarding-ui';
 import { Sprout } from '../../src/components/Sprout';
+import { hapticSelect, hapticSuccess } from '../../src/lib/haptics';
 
 type Units = 'metric' | 'imperial';
 type Sex = 'male' | 'female' | 'unspecified';
@@ -49,6 +49,7 @@ function toggle<T>(arr: T[], v: T): T[] {
 
 export default function Onboarding() {
   const { session, refreshOnboarding } = useAuth();
+  const insets = useSafeAreaInsets();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
 
@@ -196,6 +197,7 @@ export default function Onboarding() {
         { onConflict: 'user_id,day,source' },
       );
 
+      hapticSuccess();
       await refreshOnboarding();
       // Root navigator routes to (tabs) once onboardingComplete flips true.
     } catch (e) {
@@ -205,8 +207,10 @@ export default function Onboarding() {
   }
 
   function next() {
-    if (step < TOTAL_STEPS - 1) setStep((s) => s + 1);
-    else finish();
+    if (step < TOTAL_STEPS - 1) {
+      hapticSelect();
+      setStep((s) => s + 1);
+    } else finish();
   }
 
   return (
@@ -234,333 +238,335 @@ export default function Onboarding() {
         </View>
 
         <ScrollView
-          contentContainerClassName="px-6 pb-6 flex-grow"
+          className="flex-1"
+          contentContainerClassName="px-6 pb-4 gap-6"
           keyboardShouldPersistTaps="handled"
+          bounces={false}
+          alwaysBounceVertical={false}
+          showsVerticalScrollIndicator={false}
         >
-          <StepShell
-            footer={
-              <PrimaryButton
-                label={step === TOTAL_STEPS - 1 ? 'Finish setup' : 'Continue'}
-                onPress={next}
-                disabled={!canContinue()}
-                loading={saving}
+          {step === 0 && (
+            <>
+              <StepHeader title="Welcome to Tola" subtitle="What should we call you?" />
+              <Field value={name} onChangeText={setName} placeholder="Your name" />
+            </>
+          )}
+
+          {step === 1 && (
+            <>
+              <StepHeader title="About you" subtitle="Used to tailor your calorie targets." />
+              <View className="gap-2">
+                {(['male', 'female', 'unspecified'] as Sex[]).map((s) => (
+                  <ChoiceCard
+                    key={s}
+                    label={
+                      s === 'unspecified' ? 'Prefer not to say' : s[0].toUpperCase() + s.slice(1)
+                    }
+                    selected={sex === s}
+                    onPress={() => setSex(s)}
+                  />
+                ))}
+              </View>
+              <Field
+                value={birthYear}
+                onChangeText={setBirthYear}
+                placeholder="Year of birth (e.g. 1998)"
+                keyboardType="number-pad"
+                maxLength={4}
               />
-            }
-          >
-            {step === 0 && (
-              <>
-                <StepHeader title="Welcome to Tola" subtitle="What should we call you?" />
-                <Field value={name} onChangeText={setName} placeholder="Your name" />
-              </>
-            )}
+            </>
+          )}
 
-            {step === 1 && (
-              <>
-                <StepHeader title="About you" subtitle="Used to tailor your calorie targets." />
-                <View className="gap-2">
-                  {(['male', 'female', 'unspecified'] as Sex[]).map((s) => (
-                    <ChoiceCard
-                      key={s}
-                      label={
-                        s === 'unspecified' ? 'Prefer not to say' : s[0].toUpperCase() + s.slice(1)
-                      }
-                      selected={sex === s}
-                      onPress={() => setSex(s)}
-                    />
-                  ))}
-                </View>
-                <Field
-                  value={birthYear}
-                  onChangeText={setBirthYear}
-                  placeholder="Year of birth (e.g. 1998)"
-                  keyboardType="number-pad"
-                  maxLength={4}
+          {step === 2 && (
+            <>
+              <StepHeader title="Units" subtitle="You can change this later." />
+              <View className="gap-2">
+                <ChoiceCard
+                  label="Metric (kg, cm)"
+                  selected={units === 'metric'}
+                  onPress={() => setUnits('metric')}
                 />
-              </>
-            )}
+                <ChoiceCard
+                  label="Imperial (lb, ft/in)"
+                  selected={units === 'imperial'}
+                  onPress={() => setUnits('imperial')}
+                />
+              </View>
+            </>
+          )}
 
-            {step === 2 && (
-              <>
-                <StepHeader title="Units" subtitle="You can change this later." />
-                <View className="gap-2">
-                  <ChoiceCard
-                    label="Metric (kg, cm)"
-                    selected={units === 'metric'}
-                    onPress={() => setUnits('metric')}
-                  />
-                  <ChoiceCard
-                    label="Imperial (lb, ft/in)"
-                    selected={units === 'imperial'}
-                    onPress={() => setUnits('imperial')}
-                  />
-                </View>
-              </>
-            )}
-
-            {step === 3 && (
-              <>
-                <StepHeader title="Your measurements" subtitle="Height and current weight." />
-                {units === 'metric' ? (
-                  <Field
-                    value={heightCm}
-                    onChangeText={setHeightCm}
-                    placeholder="Height"
-                    keyboardType="numeric"
-                    suffix="cm"
-                  />
-                ) : (
-                  <View className="flex-row gap-3">
-                    <View className="flex-1">
-                      <Field
-                        value={heightFt}
-                        onChangeText={setHeightFt}
-                        placeholder="Height"
-                        keyboardType="number-pad"
-                        suffix="ft"
-                      />
-                    </View>
-                    <View className="flex-1">
-                      <Field
-                        value={heightIn}
-                        onChangeText={setHeightIn}
-                        placeholder=""
-                        keyboardType="number-pad"
-                        suffix="in"
-                      />
-                    </View>
-                  </View>
-                )}
+          {step === 3 && (
+            <>
+              <StepHeader title="Your measurements" subtitle="Height and current weight." />
+              {units === 'metric' ? (
                 <Field
-                  value={weight}
-                  onChangeText={setWeight}
-                  placeholder="Current weight"
+                  value={heightCm}
+                  onChangeText={setHeightCm}
+                  placeholder="Height"
                   keyboardType="numeric"
-                  suffix={weightSuffix}
+                  suffix="cm"
                 />
-              </>
-            )}
-
-            {step === 4 && (
-              <>
-                <StepHeader title="Your goal" subtitle="What are you here to do?" />
-                <View className="gap-2">
-                  <ChoiceCard
-                    label="Lose fat"
-                    description="Calorie deficit, keep your muscle."
-                    selected={goal === 'lose_fat'}
-                    onPress={() => setGoal('lose_fat')}
-                  />
-                  <ChoiceCard
-                    label="Build muscle"
-                    description="Slight surplus, progressive overload."
-                    selected={goal === 'build_muscle'}
-                    onPress={() => setGoal('build_muscle')}
-                  />
-                  <ChoiceCard
-                    label="Maintain / get healthier"
-                    description="Hold weight, build the habit."
-                    selected={goal === 'maintain'}
-                    onPress={() => setGoal('maintain')}
-                  />
-                  <ChoiceCard
-                    label="Body recomposition"
-                    description="Lose fat + build muscle together."
-                    selected={goal === 'recomp'}
-                    onPress={() => setGoal('recomp')}
-                  />
-                </View>
-              </>
-            )}
-
-            {step === 5 && (
-              <>
-                <StepHeader title="Activity level" subtitle="Outside of your training." />
-                <View className="gap-2">
-                  <ChoiceCard
-                    label="Sedentary"
-                    description="Desk job, little movement."
-                    selected={activity === 'sedentary'}
-                    onPress={() => setActivity('sedentary')}
-                  />
-                  <ChoiceCard
-                    label="Lightly active"
-                    description="On your feet sometimes."
-                    selected={activity === 'light'}
-                    onPress={() => setActivity('light')}
-                  />
-                  <ChoiceCard
-                    label="Moderately active"
-                    description="Regular movement / steps."
-                    selected={activity === 'moderate'}
-                    onPress={() => setActivity('moderate')}
-                  />
-                  <ChoiceCard
-                    label="Active"
-                    description="Physical job or lots of steps."
-                    selected={activity === 'active'}
-                    onPress={() => setActivity('active')}
-                  />
-                  <ChoiceCard
-                    label="Very active"
-                    description="Hard physical work."
-                    selected={activity === 'very_active'}
-                    onPress={() => setActivity('very_active')}
-                  />
-                </View>
-              </>
-            )}
-
-            {step === 6 && (
-              <>
-                <StepHeader
-                  title="Target"
-                  subtitle={
-                    needsTarget
-                      ? 'Where do you want to get to?'
-                      : 'Maintaining — no target weight needed.'
-                  }
-                />
-                {needsTarget ? (
-                  <>
+              ) : (
+                <View className="flex-row gap-3">
+                  <View className="flex-1">
                     <Field
-                      value={targetWeight}
-                      onChangeText={setTargetWeight}
-                      placeholder="Target weight"
-                      keyboardType="numeric"
-                      suffix={weightSuffix}
+                      value={heightFt}
+                      onChangeText={setHeightFt}
+                      placeholder="Height"
+                      keyboardType="number-pad"
+                      suffix="ft"
                     />
-                    <Text className="text-sm text-fg-muted">Weekly pace</Text>
-                    <View className="flex-row flex-wrap gap-2">
-                      {[0.25, 0.5, 0.75].map((r) => (
-                        <Chip
-                          key={r}
-                          label={`${units === 'metric' ? r + ' kg' : (r * 2.2).toFixed(1) + ' lb'}/wk`}
-                          selected={weeklyRate === r}
-                          onPress={() => setWeeklyRate(r)}
-                        />
-                      ))}
-                    </View>
-                  </>
-                ) : (
-                  <Text className="text-sm text-fg-faint">
-                    We’ll set you to maintenance calories.
-                  </Text>
-                )}
-              </>
-            )}
+                  </View>
+                  <View className="flex-1">
+                    <Field
+                      value={heightIn}
+                      onChangeText={setHeightIn}
+                      placeholder=""
+                      keyboardType="number-pad"
+                      suffix="in"
+                    />
+                  </View>
+                </View>
+              )}
+              <Field
+                value={weight}
+                onChangeText={setWeight}
+                placeholder="Current weight"
+                keyboardType="numeric"
+                suffix={weightSuffix}
+              />
+            </>
+          )}
 
-            {step === 7 && (
-              <>
-                <StepHeader title="Training" subtitle="Days per week and what you've got." />
-                <Text className="text-sm text-fg-muted">Training days / week</Text>
-                <View className="flex-row flex-wrap gap-2">
-                  {[2, 3, 4, 5, 6].map((d) => (
-                    <Chip
-                      key={d}
-                      label={`${d}`}
-                      selected={trainingDays === d}
-                      onPress={() => setTrainingDays(d)}
-                    />
-                  ))}
-                </View>
-                <View className="mt-2 gap-2">
-                  <ChoiceCard
-                    label="Full gym"
-                    selected={equipment === 'full_gym'}
-                    onPress={() => setEquipment('full_gym')}
-                  />
-                  <ChoiceCard
-                    label="Home (dumbbells / bands)"
-                    selected={equipment === 'home'}
-                    onPress={() => setEquipment('home')}
-                  />
-                  <ChoiceCard
-                    label="Bodyweight only"
-                    selected={equipment === 'bodyweight'}
-                    onPress={() => setEquipment('bodyweight')}
-                  />
-                </View>
-              </>
-            )}
-
-            {step === 8 && (
-              <>
-                <StepHeader title="Diet" subtitle="Style, plus anything to avoid." />
-                <View className="gap-2">
-                  {(['omnivore', 'vegetarian', 'vegan', 'pescatarian'] as DietStyle[]).map((d) => (
-                    <ChoiceCard
-                      key={d}
-                      label={d[0].toUpperCase() + d.slice(1)}
-                      selected={dietStyle === d}
-                      onPress={() => setDietStyle(d)}
-                    />
-                  ))}
-                </View>
-                <Text className="mt-2 text-sm text-fg-muted">Preferences</Text>
-                <View className="flex-row flex-wrap gap-2">
-                  {['high_protein', 'keto'].map((t) => (
-                    <Chip
-                      key={t}
-                      label={t.replace('_', ' ')}
-                      selected={extraTags.includes(t)}
-                      onPress={() => setExtraTags((p) => toggle(p, t))}
-                    />
-                  ))}
-                </View>
-                <Text className="mt-2 text-sm text-fg-muted">Allergens to exclude</Text>
-                <View className="flex-row flex-wrap gap-2">
-                  {ALLERGENS.map((a) => (
-                    <Chip
-                      key={a}
-                      label={a}
-                      selected={allergens.includes(a)}
-                      onPress={() => setAllergens((p) => toggle(p, a))}
-                    />
-                  ))}
-                </View>
-              </>
-            )}
-
-            {step === 9 && (
-              <>
-                <StepHeader
-                  title="Meals per day"
-                  subtitle="How you like to eat. Snacks are always quick-add."
+          {step === 4 && (
+            <>
+              <StepHeader title="Your goal" subtitle="What are you here to do?" />
+              <View className="gap-2">
+                <ChoiceCard
+                  label="Lose fat"
+                  description="Calorie deficit, keep your muscle."
+                  selected={goal === 'lose_fat'}
+                  onPress={() => setGoal('lose_fat')}
                 />
-                <View className="flex-row flex-wrap gap-2">
-                  {[2, 3, 4, 5, 6].map((m) => (
-                    <Chip
-                      key={m}
-                      label={`${m} meals`}
-                      selected={mealsPerDay === m}
-                      onPress={() => setMealsPerDay(m)}
-                    />
-                  ))}
-                </View>
-              </>
-            )}
+                <ChoiceCard
+                  label="Build muscle"
+                  description="Slight surplus, progressive overload."
+                  selected={goal === 'build_muscle'}
+                  onPress={() => setGoal('build_muscle')}
+                />
+                <ChoiceCard
+                  label="Maintain / get healthier"
+                  description="Hold weight, build the habit."
+                  selected={goal === 'maintain'}
+                  onPress={() => setGoal('maintain')}
+                />
+                <ChoiceCard
+                  label="Body recomposition"
+                  description="Lose fat + build muscle together."
+                  selected={goal === 'recomp'}
+                  onPress={() => setGoal('recomp')}
+                />
+              </View>
+            </>
+          )}
 
-            {step === 10 && (
-              <>
-                <StepHeader title="Your plan" subtitle="How would you like to start?" />
-                <View className="gap-2">
-                  <ChoiceCard
-                    label="Generate a smart plan"
-                    description="Science-based, tailored to everything above. (Generation lands in Phase 3 — your targets are saved now.)"
-                    selected={planChoice === 'smart'}
-                    onPress={() => setPlanChoice('smart')}
+          {step === 5 && (
+            <>
+              <StepHeader title="Activity level" subtitle="Outside of your training." />
+              <View className="gap-2">
+                <ChoiceCard
+                  label="Sedentary"
+                  description="Desk job, little movement."
+                  selected={activity === 'sedentary'}
+                  onPress={() => setActivity('sedentary')}
+                />
+                <ChoiceCard
+                  label="Lightly active"
+                  description="On your feet sometimes."
+                  selected={activity === 'light'}
+                  onPress={() => setActivity('light')}
+                />
+                <ChoiceCard
+                  label="Moderately active"
+                  description="Regular movement / steps."
+                  selected={activity === 'moderate'}
+                  onPress={() => setActivity('moderate')}
+                />
+                <ChoiceCard
+                  label="Active"
+                  description="Physical job or lots of steps."
+                  selected={activity === 'active'}
+                  onPress={() => setActivity('active')}
+                />
+                <ChoiceCard
+                  label="Very active"
+                  description="Hard physical work."
+                  selected={activity === 'very_active'}
+                  onPress={() => setActivity('very_active')}
+                />
+              </View>
+            </>
+          )}
+
+          {step === 6 && (
+            <>
+              <StepHeader
+                title="Target"
+                subtitle={
+                  needsTarget
+                    ? 'Where do you want to get to?'
+                    : 'Maintaining — no target weight needed.'
+                }
+              />
+              {needsTarget ? (
+                <>
+                  <Field
+                    value={targetWeight}
+                    onChangeText={setTargetWeight}
+                    placeholder="Target weight"
+                    keyboardType="numeric"
+                    suffix={weightSuffix}
                   />
-                  <ChoiceCard
-                    label="Build my own"
-                    description="Start from scratch and add your own workouts & meals."
-                    selected={planChoice === 'own'}
-                    onPress={() => setPlanChoice('own')}
+                  <Text className="text-sm text-fg-muted">Weekly pace</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {[0.25, 0.5, 0.75].map((r) => (
+                      <Chip
+                        key={r}
+                        label={`${units === 'metric' ? r + ' kg' : (r * 2.2).toFixed(1) + ' lb'}/wk`}
+                        selected={weeklyRate === r}
+                        onPress={() => setWeeklyRate(r)}
+                      />
+                    ))}
+                  </View>
+                </>
+              ) : (
+                <Text className="text-sm text-fg-faint">
+                  We’ll set you to maintenance calories.
+                </Text>
+              )}
+            </>
+          )}
+
+          {step === 7 && (
+            <>
+              <StepHeader title="Training" subtitle="Days per week and what you've got." />
+              <Text className="text-sm text-fg-muted">Training days / week</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {[2, 3, 4, 5, 6].map((d) => (
+                  <Chip
+                    key={d}
+                    label={`${d}`}
+                    selected={trainingDays === d}
+                    onPress={() => setTrainingDays(d)}
                   />
-                </View>
-              </>
-            )}
-          </StepShell>
+                ))}
+              </View>
+              <View className="mt-2 gap-2">
+                <ChoiceCard
+                  label="Full gym"
+                  selected={equipment === 'full_gym'}
+                  onPress={() => setEquipment('full_gym')}
+                />
+                <ChoiceCard
+                  label="Home (dumbbells / bands)"
+                  selected={equipment === 'home'}
+                  onPress={() => setEquipment('home')}
+                />
+                <ChoiceCard
+                  label="Bodyweight only"
+                  selected={equipment === 'bodyweight'}
+                  onPress={() => setEquipment('bodyweight')}
+                />
+              </View>
+            </>
+          )}
+
+          {step === 8 && (
+            <>
+              <StepHeader title="Diet" subtitle="Style, plus anything to avoid." />
+              <View className="gap-2">
+                {(['omnivore', 'vegetarian', 'vegan', 'pescatarian'] as DietStyle[]).map((d) => (
+                  <ChoiceCard
+                    key={d}
+                    label={d[0].toUpperCase() + d.slice(1)}
+                    selected={dietStyle === d}
+                    onPress={() => setDietStyle(d)}
+                  />
+                ))}
+              </View>
+              <Text className="mt-2 text-sm text-fg-muted">Preferences</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {['high_protein', 'keto'].map((t) => (
+                  <Chip
+                    key={t}
+                    label={t.replace('_', ' ')}
+                    selected={extraTags.includes(t)}
+                    onPress={() => setExtraTags((p) => toggle(p, t))}
+                  />
+                ))}
+              </View>
+              <Text className="mt-2 text-sm text-fg-muted">Allergens to exclude</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {ALLERGENS.map((a) => (
+                  <Chip
+                    key={a}
+                    label={a}
+                    selected={allergens.includes(a)}
+                    onPress={() => setAllergens((p) => toggle(p, a))}
+                  />
+                ))}
+              </View>
+            </>
+          )}
+
+          {step === 9 && (
+            <>
+              <StepHeader
+                title="Meals per day"
+                subtitle="How you like to eat. Snacks are always quick-add."
+              />
+              <View className="flex-row flex-wrap gap-2">
+                {[2, 3, 4, 5, 6].map((m) => (
+                  <Chip
+                    key={m}
+                    label={`${m} meals`}
+                    selected={mealsPerDay === m}
+                    onPress={() => setMealsPerDay(m)}
+                  />
+                ))}
+              </View>
+            </>
+          )}
+
+          {step === 10 && (
+            <>
+              <StepHeader title="Your plan" subtitle="How would you like to start?" />
+              <View className="gap-2">
+                <ChoiceCard
+                  label="Generate a smart plan"
+                  description="Science-based, tailored to everything above. (Generation lands in Phase 3 — your targets are saved now.)"
+                  selected={planChoice === 'smart'}
+                  onPress={() => setPlanChoice('smart')}
+                />
+                <ChoiceCard
+                  label="Build my own"
+                  description="Start from scratch and add your own workouts & meals."
+                  selected={planChoice === 'own'}
+                  onPress={() => setPlanChoice('own')}
+                />
+              </View>
+            </>
+          )}
         </ScrollView>
+
+        <View className="px-6 pt-2" style={{ paddingBottom: insets.bottom + 12 }}>
+          <PrimaryButton
+            label={step === TOTAL_STEPS - 1 ? 'Finish setup' : 'Continue'}
+            onPress={next}
+            disabled={!canContinue()}
+            loading={saving}
+          />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../../src/lib/auth';
 import {
   buildInsights,
@@ -39,6 +40,7 @@ function last14Adherence(summaries: { day: string; adherence_score: number | nul
 }
 
 export default function Progress() {
+  const tabBarHeight = useBottomTabBarHeight();
   const { session } = useAuth();
   const userId = session?.user.id;
 
@@ -62,7 +64,10 @@ export default function Progress() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
-      <ScrollView contentContainerClassName="p-5 gap-4">
+      <ScrollView
+        contentContainerClassName="p-5 gap-4"
+        contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}
+      >
         <Text className="text-4xl text-fg" style={{ fontFamily: DISPLAY_BOLD }}>
           Progress
         </Text>

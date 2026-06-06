@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
+import { hapticSelect } from '../lib/haptics';
 
 const DISPLAY_BOLD = 'Fraunces_700Bold';
 const CTA_GLOW = { boxShadow: '0 8px 24px rgba(224, 122, 95, 0.30)' } as const;
@@ -39,7 +40,10 @@ export function ChoiceCard({
 }) {
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        hapticSelect();
+        onPress();
+      }}
       style={CONTINUOUS}
       className={`flex-row items-center gap-3 rounded-2xl border p-4 ${
         selected ? 'border-accent bg-accent/10' : 'border-border bg-bg-elevated'
@@ -72,7 +76,10 @@ export function Chip({
 }) {
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        hapticSelect();
+        onPress();
+      }}
       className={`rounded-full border px-4 py-2.5 ${
         selected ? 'border-accent bg-accent/15' : 'border-border bg-bg-subtle'
       } active:opacity-80`}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/lib/auth';
 import { useActiveGoal } from '../../src/lib/goals';
@@ -19,6 +20,7 @@ import { buildInsights, computeStreak, useDailySummaries } from '../../src/lib/p
 import { MacroRing } from '../../src/components/MacroRing';
 import { NumberModal } from '../../src/components/NumberModal';
 import { Sprout } from '../../src/components/Sprout';
+import { hapticImpact, hapticSuccess } from '../../src/lib/haptics';
 
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const DISPLAY_BOLD = 'Fraunces_700Bold';
@@ -26,9 +28,12 @@ type MealSlot = LogMealInput['slot'];
 
 function startOfWeek(d: Date): Date {
   const out = new Date(d);
+  out.setHours(0, 0, 0, 0);
   out.setDate(d.getDate() - d.getDay());
   return out;
 }
+
+const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function greeting(d: Date): string {
   const h = d.getHours();
@@ -78,6 +83,7 @@ type ModalConfig = {
 
 export default function Home() {
   const router = useRouter();
+  const tabBarHeight = useBottomTabBarHeight();
   const { session } = useAuth();
   const userId = session?.user.id;
 
@@ -127,6 +133,7 @@ export default function Home() {
 
   function eatMeal() {
     if (!nextMeal) return;
+    hapticSuccess();
     logMeal.mutate({
       planMealId: nextMeal.id,
       name: nextMeal.name,
@@ -141,7 +148,10 @@ export default function Home() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
-      <ScrollView contentContainerClassName="p-5 gap-4">
+      <ScrollView
+        contentContainerClassName="p-5 gap-4"
+        contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}
+      >
         <View className="flex-row items-center justify-between">
           <View className="flex-1 pr-3">
             <Text className="text-base text-fg-muted">{greeting(today)}</Text>
@@ -246,16 +256,40 @@ export default function Home() {
                 {todaysWorkout.exercises.length > 3 ? '…' : ''}
               </Text>
               <Pressable
-                onPress={() => router.push(`/workout/${todaysWorkout.id}`)}
-                className="mt-1 items-center rounded-2xl bg-accent py-3 active:opacity-80"
+                onPress={() => {
+                  hapticImpact();
+                  router.push(`/workout/${todaysWorkout.id}`);
+                }}
+                style={{ borderCurve: 'continuous' }}
+                className="mt-1 items-center rounded-2xl bg-accent py-3 active:opacity-90"
               >
                 <Text className="font-semibold text-bg">Start workout</Text>
               </Pressable>
             </>
           ) : (
-            <Text className="text-sm text-fg-muted">
-              Rest day{trainingPlan ? '' : ' — generate a plan in the Plan tab'}.
-            </Text>
+            <>
+              <Text className="text-sm text-fg-muted">
+                {trainingPlan
+                  ? 'Rest day — but if you feel like moving, pick any session.'
+                  : 'No plan yet — generate one in the Plan tab.'}
+              </Text>
+              {(trainingPlan?.workouts ?? []).map((w) => (
+                <Pressable
+                  key={w.id}
+                  onPress={() => {
+                    hapticImpact();
+                    router.push(`/workout/${w.id}`);
+                  }}
+                  className="mt-1 flex-row items-center justify-between rounded-2xl border border-border bg-bg-subtle px-4 py-3 active:opacity-80"
+                >
+                  <Text className="font-medium text-sm text-fg">{w.name}</Text>
+                  <Text className="text-xs text-fg-faint">
+                    {w.dayOfWeek !== null ? `${DAY_SHORT[w.dayOfWeek]} · ` : ''}
+                    {w.exercises.length} ex
+                  </Text>
+                </Pressable>
+              ))}
+            </>
           )}
         </View>
 
@@ -331,7 +365,10 @@ export default function Home() {
               {[250, 500].map((ml) => (
                 <Pressable
                   key={ml}
-                  onPress={() => logWater.mutate({ amountMl: ml })}
+                  onPress={() => {
+                    hapticImpact();
+                    logWater.mutate({ amountMl: ml });
+                  }}
                   className="rounded-full border border-border bg-bg-subtle px-4 py-2 active:opacity-80"
                 >
                   <Text className="text-sm text-fg-muted">+{ml} ml</Text>

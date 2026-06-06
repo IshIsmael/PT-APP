@@ -1,5 +1,6 @@
-import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { supabase } from '../../src/lib/supabase';
 import { useAuth } from '../../src/lib/auth';
 import { useActiveGoal } from '../../src/lib/goals';
@@ -25,6 +26,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export default function Profile() {
+  const tabBarHeight = useBottomTabBarHeight();
   const { session } = useAuth();
   const { data: goal, isLoading } = useActiveGoal(session?.user.id);
 
@@ -58,7 +60,10 @@ export default function Profile() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
-      <View className="flex-1 gap-4 p-5">
+      <ScrollView
+        contentContainerClassName="gap-4 p-5"
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: tabBarHeight + 24 }}
+      >
         <Text className="text-4xl text-fg" style={{ fontFamily: DISPLAY_BOLD }}>
           Profile
         </Text>
@@ -109,7 +114,7 @@ export default function Profile() {
         <Pressable onPress={confirmDelete} className="items-center py-2 active:opacity-70">
           <Text className="font-medium text-sm text-red-400">Delete account</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

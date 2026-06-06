@@ -23,11 +23,11 @@ export default function TabsLayout() {
         tabBarActiveTintColor: ACTIVE,
         tabBarInactiveTintColor: INACTIVE,
         tabBarStyle: {
-          backgroundColor: '#16161D',
-          borderTopColor: '#26262F',
+          backgroundColor: '#171210',
+          borderTopColor: '#3A2D24',
           borderTopWidth: 1,
         },
-        tabBarLabelStyle: { fontSize: 11 },
+        tabBarLabelStyle: { fontSize: 11, fontFamily: 'Inter_500Medium' },
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: tabIcon('home') }} />

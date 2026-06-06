@@ -1,8 +1,11 @@
 import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/lib/auth';
 import { useActiveMealPlan, useGenerateMealPlan } from '../../src/lib/plans';
+import { hapticImpact, hapticSuccess } from '../../src/lib/haptics';
 
 const SLOT_LABEL: Record<string, string> = {
   breakfast: 'Breakfast',
@@ -10,9 +13,11 @@ const SLOT_LABEL: Record<string, string> = {
   dinner: 'Dinner',
   snack: 'Snack',
 };
+const DISPLAY_BOLD = 'Fraunces_700Bold';
 
 export default function Nutrition() {
   const router = useRouter();
+  const tabBarHeight = useBottomTabBarHeight();
   const { session } = useAuth();
   const userId = session?.user.id;
   const { data: plan, isLoading } = useActiveMealPlan(userId);
@@ -20,6 +25,7 @@ export default function Nutrition() {
 
   function onGenerate() {
     generate.mutate(undefined, {
+      onSuccess: () => hapticSuccess(),
       onError: (e) =>
         Alert.alert('Could not generate', e instanceof Error ? e.message : 'Try again.'),
     });
@@ -37,9 +43,14 @@ export default function Nutrition() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
-      <ScrollView contentContainerClassName="p-5 gap-4">
+      <ScrollView
+        contentContainerClassName="p-5 gap-4"
+        contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}
+      >
         <View className="flex-row items-end justify-between">
-          <Text className="text-3xl font-bold text-fg">Nutrition</Text>
+          <Text className="text-4xl text-fg" style={{ fontFamily: DISPLAY_BOLD }}>
+            Nutrition
+          </Text>
           {plan && (
             <Pressable onPress={onGenerate} disabled={generate.isPending} hitSlop={8}>
               <Text className="font-medium text-sm text-accent">
@@ -52,17 +63,25 @@ export default function Nutrition() {
         {/* Barcode + shopping list entry points */}
         <View className="flex-row gap-3">
           <Pressable
-            onPress={() => router.push('/scan')}
-            className="flex-1 flex-row items-center justify-center gap-2 rounded-2xl border border-border bg-bg-elevated py-3 active:opacity-80"
+            onPress={() => {
+              hapticImpact();
+              router.push('/scan');
+            }}
+            style={{ borderCurve: 'continuous' }}
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-2xl border border-border bg-bg-elevated py-3.5 active:opacity-80"
           >
-            <Text className="text-base text-fg">📷</Text>
+            <Ionicons name="barcode-outline" size={18} color="#E07A5F" />
             <Text className="font-medium text-fg">Scan barcode</Text>
           </Pressable>
           <Pressable
-            onPress={() => router.push('/shopping')}
-            className="flex-1 flex-row items-center justify-center gap-2 rounded-2xl border border-border bg-bg-elevated py-3 active:opacity-80"
+            onPress={() => {
+              hapticImpact();
+              router.push('/shopping');
+            }}
+            style={{ borderCurve: 'continuous' }}
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-2xl border border-border bg-bg-elevated py-3.5 active:opacity-80"
           >
-            <Text className="text-base text-fg">🛒</Text>
+            <Ionicons name="basket-outline" size={18} color="#E07A5F" />
             <Text className="font-medium text-fg">Shopping list</Text>
           </Pressable>
         </View>
