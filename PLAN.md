@@ -60,16 +60,19 @@ Three-layer analytics model: typed logs → `log_events` stream → `daily_user_
 - [ ] Later: edit individual workouts/meals; "redo with extra input"; tune meal-macro precision;
       per-day meal variety; expand library with home/bodyweight exercise variants
 
-## Phase 4 — The Logging Loop (the spine)
+## Phase 4 — The Logging Loop (the spine)  ✅ core done, pending on-device verify
 
-- [ ] Home: weekday strip, animated macro ring hero, day-completion bar + coach headline,
-      session card, meals card, water bottle, habit chips, week dots, top insight
-- [ ] Workout modal: Standard/Advanced toggle → logs set_logs + session; auto rest timer (by goal)
-- [ ] Meals: photo card → "Did you eat it?" yes/no → log + advance to next meal; quick-add snack
-- [ ] Water/liquid bottle card (editable liquid type) → liquid_logs; auto goal w/ override
-- [ ] Weight + habit chips quick logging
-- [ ] Optimistic writes + offline outbox queue (logging never blocks on network)
-- [ ] Verify: log a full day offline → reconnect → syncs; Home reflects live
+- [x] Logging layer: each log writes typed row → log_events stream → recomputes
+      daily_user_summaries cache (adherence scores). src/lib/logging.ts + workout.ts
+- [x] Home: weekday strip, macro ring hero (SVG, P/C/F) + macro bars, today's session card,
+      next-meal "Ate it / Skip" + quick-add snack, water bottle + quick add, habit chips
+- [x] Workout modal: log weight×reps per set, per-exercise rest timer, add sets, finish →
+      set_logs + session + log_events (plan-vs-actual linked)
+- [x] Water/liquid bottle card → liquid_logs; Weight + steps/sleep habit chips
+- [ ] On-device verify: log meals/water/weight/habits + a workout; Home + summary update
+- [ ] Later: animated ring transitions; meal photos (curated); week dots + coach headline;
+      day-completion bar; top insight; offline outbox queue; Advanced workout UI (RPE/supersets);
+      editable liquid type
 
 ## Phase 4.5 — Health Integrations
 
