@@ -1,0 +1,45 @@
+name: EAS Update (manual)
+
+# Publishes an over-the-air JS update via EAS Update.
+#
+# ONE-TIME PREREQUISITES (a maintainer, locally):
+#   1. npx eas-cli@latest login
+#   2. npx eas-cli@latest init        # creates the EAS project + adds
+#                                      # extra.eas.projectId to app.json, and eas.json
+#   3. Create an Expo access token (expo.dev → Account → Access tokens) and add it
+#      as the repository secret `EXPO_TOKEN` (Settings → Secrets → Actions).
+#
+# Until those are done this workflow will fail by design — deploys are opt-in and
+# never run automatically (no auto-deploy without approval).
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'EAS Update branch / channel'
+        default: preview
+        required: true
+
+jobs:
+  update:
+    name: Publish OTA update
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Publish update
+        run: eas update --branch "${{ inputs.branch }}" --message "${{ github.sha }}" --non-interactive

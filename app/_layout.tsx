@@ -46,7 +46,7 @@ function RootNavigator() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-bg items-center justify-center">
+      <View className="flex-1 items-center justify-center bg-bg">
         <ActivityIndicator color="#6EE7B7" />
       </View>
     );

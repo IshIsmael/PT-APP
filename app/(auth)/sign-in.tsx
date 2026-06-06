@@ -54,10 +54,10 @@ export default function SignIn() {
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View className="flex-1 px-6 justify-center gap-8">
+        <View className="flex-1 justify-center gap-8 px-6">
           <View className="gap-2">
-            <Text className="text-fg text-4xl font-bold tracking-tight">Tola</Text>
-            <Text className="text-fg-muted text-base">
+            <Text className="text-4xl font-bold tracking-tight text-fg">Tola</Text>
+            <Text className="text-base text-fg-muted">
               {stage === 'email'
                 ? 'Sign in with your email to get started.'
                 : `Enter the 6-digit code we sent to ${email.trim().toLowerCase()}.`}
@@ -77,17 +77,17 @@ export default function SignIn() {
                 inputMode="email"
                 returnKeyType="go"
                 onSubmitEditing={sendCode}
-                className="bg-bg-subtle text-fg rounded-2xl px-4 py-4 text-base border border-border"
+                className="rounded-2xl border border-border bg-bg-subtle px-4 py-4 text-base text-fg"
               />
               <Pressable
                 onPress={sendCode}
                 disabled={loading}
-                className="bg-accent rounded-2xl py-4 items-center active:opacity-80"
+                className="items-center rounded-2xl bg-accent py-4 active:opacity-80"
               >
                 {loading ? (
                   <ActivityIndicator color="#0B0B0F" />
                 ) : (
-                  <Text className="text-bg font-semibold text-base">Send code</Text>
+                  <Text className="text-base font-semibold text-bg">Send code</Text>
                 )}
               </Pressable>
             </View>
@@ -103,21 +103,21 @@ export default function SignIn() {
                 maxLength={6}
                 returnKeyType="go"
                 onSubmitEditing={verifyCode}
-                className="bg-bg-subtle text-fg rounded-2xl px-4 py-4 text-2xl tracking-[8px] text-center border border-border"
+                className="rounded-2xl border border-border bg-bg-subtle px-4 py-4 text-center text-2xl tracking-[8px] text-fg"
               />
               <Pressable
                 onPress={verifyCode}
                 disabled={loading || code.trim().length < 6}
-                className="bg-accent rounded-2xl py-4 items-center active:opacity-80 disabled:opacity-50"
+                className="items-center rounded-2xl bg-accent py-4 active:opacity-80 disabled:opacity-50"
               >
                 {loading ? (
                   <ActivityIndicator color="#0B0B0F" />
                 ) : (
-                  <Text className="text-bg font-semibold text-base">Verify & continue</Text>
+                  <Text className="text-base font-semibold text-bg">Verify & continue</Text>
                 )}
               </Pressable>
-              <Pressable onPress={() => setStage('email')} className="py-2 items-center">
-                <Text className="text-fg-muted text-sm">Use a different email</Text>
+              <Pressable onPress={() => setStage('email')} className="items-center py-2">
+                <Text className="text-sm text-fg-muted">Use a different email</Text>
               </Pressable>
             </View>
           )}
@@ -125,26 +125,32 @@ export default function SignIn() {
           {stage === 'email' && (
             <View className="gap-3">
               <View className="flex-row items-center gap-3">
-                <View className="flex-1 h-px bg-border" />
-                <Text className="text-fg-faint text-xs">or</Text>
-                <View className="flex-1 h-px bg-border" />
+                <View className="h-px flex-1 bg-border" />
+                <Text className="text-xs text-fg-faint">or</Text>
+                <View className="h-px flex-1 bg-border" />
               </View>
               {/* Wired but inactive until OAuth credentials are configured. */}
               <Pressable
                 onPress={() =>
-                  Alert.alert('Coming soon', 'Google sign-in is set up after OAuth credentials are added.')
+                  Alert.alert(
+                    'Coming soon',
+                    'Google sign-in is set up after OAuth credentials are added.',
+                  )
                 }
-                className="bg-bg-subtle border border-border rounded-2xl py-4 items-center opacity-60"
+                className="items-center rounded-2xl border border-border bg-bg-subtle py-4 opacity-60"
               >
-                <Text className="text-fg font-medium text-base">Continue with Google</Text>
+                <Text className="text-base font-medium text-fg">Continue with Google</Text>
               </Pressable>
               <Pressable
                 onPress={() =>
-                  Alert.alert('Coming soon', 'Apple sign-in needs an Apple Developer account first.')
+                  Alert.alert(
+                    'Coming soon',
+                    'Apple sign-in needs an Apple Developer account first.',
+                  )
                 }
-                className="bg-bg-subtle border border-border rounded-2xl py-4 items-center opacity-60"
+                className="items-center rounded-2xl border border-border bg-bg-subtle py-4 opacity-60"
               >
-                <Text className="text-fg font-medium text-base">Continue with Apple</Text>
+                <Text className="text-base font-medium text-fg">Continue with Apple</Text>
               </Pressable>
             </View>
           )}

@@ -13,7 +13,8 @@ export default function Plan() {
 
   function onGenerate() {
     generate.mutate(undefined, {
-      onError: (e) => Alert.alert('Could not generate', e instanceof Error ? e.message : 'Try again.'),
+      onError: (e) =>
+        Alert.alert('Could not generate', e instanceof Error ? e.message : 'Try again.'),
     });
   }
 
@@ -21,10 +22,10 @@ export default function Plan() {
     <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
       <ScrollView contentContainerClassName="p-5 gap-4">
         <View className="flex-row items-end justify-between">
-          <Text className="text-fg text-3xl font-bold">Plan</Text>
+          <Text className="text-3xl font-bold text-fg">Plan</Text>
           {plan && (
             <Pressable onPress={onGenerate} disabled={generate.isPending} hitSlop={8}>
-              <Text className="text-accent text-sm font-medium">
+              <Text className="text-sm font-medium text-accent">
                 {generate.isPending ? 'Regenerating…' : 'Regenerate'}
               </Text>
             </Pressable>
@@ -34,45 +35,48 @@ export default function Plan() {
         {isLoading ? (
           <ActivityIndicator color="#6EE7B7" className="mt-8" />
         ) : !plan ? (
-          <View className="bg-bg-elevated border border-border rounded-3xl p-6 gap-4 mt-4">
-            <Text className="text-fg text-lg font-semibold">No training plan yet</Text>
-            <Text className="text-fg-muted text-sm">
+          <View className="mt-4 gap-4 rounded-3xl border border-border bg-bg-elevated p-6">
+            <Text className="text-lg font-semibold text-fg">No training plan yet</Text>
+            <Text className="text-sm text-fg-muted">
               Generate a science-based split tailored to your goal, training days, and equipment.
             </Text>
             <Pressable
               onPress={onGenerate}
               disabled={generate.isPending}
-              className="bg-accent rounded-2xl py-4 items-center active:opacity-80"
+              className="items-center rounded-2xl bg-accent py-4 active:opacity-80"
             >
               {generate.isPending ? (
                 <ActivityIndicator color="#0B0B0F" />
               ) : (
-                <Text className="text-bg font-semibold text-base">Generate smart plan</Text>
+                <Text className="text-base font-semibold text-bg">Generate smart plan</Text>
               )}
             </Pressable>
           </View>
         ) : (
           <>
-            <Text className="text-fg-muted text-sm -mt-2">{plan.name}</Text>
+            <Text className="-mt-2 text-sm text-fg-muted">{plan.name}</Text>
             {plan.workouts.map((w) => (
-              <View key={w.id} className="bg-bg-elevated border border-border rounded-3xl p-5 gap-3">
+              <View
+                key={w.id}
+                className="gap-3 rounded-3xl border border-border bg-bg-elevated p-5"
+              >
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-fg text-lg font-semibold">{w.name}</Text>
+                  <Text className="text-lg font-semibold text-fg">{w.name}</Text>
                   {w.dayOfWeek !== null && (
-                    <View className="bg-bg-subtle rounded-full px-3 py-1">
-                      <Text className="text-fg-muted text-xs">{DAYS[w.dayOfWeek]}</Text>
+                    <View className="rounded-full bg-bg-subtle px-3 py-1">
+                      <Text className="text-xs text-fg-muted">{DAYS[w.dayOfWeek]}</Text>
                     </View>
                   )}
                 </View>
                 {w.exercises.map((e) => (
                   <View key={e.id} className="flex-row items-center justify-between py-1">
                     <View className="flex-1 pr-3">
-                      <Text className="text-fg text-sm">{e.name}</Text>
+                      <Text className="text-sm text-fg">{e.name}</Text>
                       {e.restSeconds ? (
-                        <Text className="text-fg-faint text-xs">{e.restSeconds}s rest</Text>
+                        <Text className="text-xs text-fg-faint">{e.restSeconds}s rest</Text>
                       ) : null}
                     </View>
-                    <Text className="text-accent text-sm font-medium">
+                    <Text className="text-sm font-medium text-accent">
                       {e.sets} × {e.repsLow}–{e.repsHigh}
                     </Text>
                   </View>

@@ -16,34 +16,32 @@ export default function Home() {
     <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
       <ScrollView contentContainerClassName="p-5 gap-4">
         <View className="gap-1">
-          <Text className="text-fg-muted text-base">Good to see you</Text>
-          <Text className="text-fg text-4xl font-bold tracking-tight">Tola</Text>
-          <Text className="text-fg-faint text-sm">
-            Phase 1 · Data model & security
-          </Text>
+          <Text className="text-base text-fg-muted">Good to see you</Text>
+          <Text className="text-4xl font-bold tracking-tight text-fg">Tola</Text>
+          <Text className="text-sm text-fg-faint">Phase 1 · Data model & security</Text>
         </View>
 
-        <View className="bg-bg-elevated border border-border rounded-3xl p-5 gap-4">
+        <View className="gap-4 rounded-3xl border border-border bg-bg-elevated p-5">
           <View className="flex-row items-center justify-between">
-            <Text className="text-fg text-lg font-semibold">Backend ready</Text>
+            <Text className="text-lg font-semibold text-fg">Backend ready</Text>
             <View className="flex-row items-center gap-2">
               <View className="h-2.5 w-2.5 rounded-full bg-accent" />
-              <Text className="text-fg-muted text-sm">tola-dev</Text>
+              <Text className="text-sm text-fg-muted">tola-dev</Text>
             </View>
           </View>
           {READY.map((line) => (
             <View key={line} className="flex-row gap-3">
-              <Text className="text-accent text-base">✓</Text>
-              <Text className="text-fg-muted text-sm flex-1">{line}</Text>
+              <Text className="text-base text-accent">✓</Text>
+              <Text className="flex-1 text-sm text-fg-muted">{line}</Text>
             </View>
           ))}
         </View>
 
-        <View className="bg-bg-elevated border border-border rounded-3xl p-5 gap-2">
-          <Text className="text-fg text-lg font-semibold">Next: Phase 2</Text>
-          <Text className="text-fg-muted text-sm">
-            Auth (magic link · Google · Apple) + the ~8–10 step onboarding intake,
-            then the algorithmic plan engine.
+        <View className="gap-2 rounded-3xl border border-border bg-bg-elevated p-5">
+          <Text className="text-lg font-semibold text-fg">Next: Phase 2</Text>
+          <Text className="text-sm text-fg-muted">
+            Auth (magic link · Google · Apple) + the ~8–10 step onboarding intake, then the
+            algorithmic plan engine.
           </Text>
         </View>
       </ScrollView>

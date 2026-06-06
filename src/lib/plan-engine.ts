@@ -42,12 +42,27 @@ type SessionType = 'FULL_A' | 'FULL_B' | 'PUSH' | 'PULL' | 'LEGS' | 'UPPER' | 'L
 
 // Ordered muscle slots per session (primary_muscle values from the seeded library).
 const BLUEPRINTS: Record<SessionType, { label: string; muscles: string[] }> = {
-  FULL_A: { label: 'Full Body A', muscles: ['chest', 'lats', 'quads', 'hamstrings', 'side_delts', 'core'] },
-  FULL_B: { label: 'Full Body B', muscles: ['chest', 'upper_back', 'quads', 'glutes', 'biceps', 'triceps'] },
-  PUSH: { label: 'Push', muscles: ['chest', 'chest', 'front_delts', 'side_delts', 'triceps', 'triceps'] },
-  PULL: { label: 'Pull', muscles: ['lats', 'upper_back', 'lats', 'biceps', 'biceps', 'rear_delts'] },
+  FULL_A: {
+    label: 'Full Body A',
+    muscles: ['chest', 'lats', 'quads', 'hamstrings', 'side_delts', 'core'],
+  },
+  FULL_B: {
+    label: 'Full Body B',
+    muscles: ['chest', 'upper_back', 'quads', 'glutes', 'biceps', 'triceps'],
+  },
+  PUSH: {
+    label: 'Push',
+    muscles: ['chest', 'chest', 'front_delts', 'side_delts', 'triceps', 'triceps'],
+  },
+  PULL: {
+    label: 'Pull',
+    muscles: ['lats', 'upper_back', 'lats', 'biceps', 'biceps', 'rear_delts'],
+  },
   LEGS: { label: 'Legs', muscles: ['quads', 'hamstrings', 'quads', 'glutes', 'calves', 'core'] },
-  UPPER: { label: 'Upper', muscles: ['chest', 'lats', 'upper_back', 'front_delts', 'biceps', 'triceps'] },
+  UPPER: {
+    label: 'Upper',
+    muscles: ['chest', 'lats', 'upper_back', 'front_delts', 'biceps', 'triceps'],
+  },
   LOWER: { label: 'Lower', muscles: ['quads', 'hamstrings', 'glutes', 'quads', 'calves', 'core'] },
 };
 
@@ -85,16 +100,24 @@ function repScheme(
   isCompound: boolean,
 ): { sets: number; low: number; high: number; rest: number } {
   if (goal === 'build_muscle') {
-    return isCompound ? { sets: 4, low: 6, high: 10, rest: 90 } : { sets: 3, low: 10, high: 15, rest: 60 };
+    return isCompound
+      ? { sets: 4, low: 6, high: 10, rest: 90 }
+      : { sets: 3, low: 10, high: 15, rest: 60 };
   }
   if (goal === 'recomp') {
-    return isCompound ? { sets: 4, low: 8, high: 12, rest: 75 } : { sets: 3, low: 12, high: 15, rest: 60 };
+    return isCompound
+      ? { sets: 4, low: 8, high: 12, rest: 75 }
+      : { sets: 3, low: 12, high: 15, rest: 60 };
   }
   if (goal === 'lose_fat') {
-    return isCompound ? { sets: 3, low: 10, high: 12, rest: 60 } : { sets: 3, low: 12, high: 15, rest: 45 };
+    return isCompound
+      ? { sets: 3, low: 10, high: 12, rest: 60 }
+      : { sets: 3, low: 12, high: 15, rest: 45 };
   }
   // maintain
-  return isCompound ? { sets: 3, low: 8, high: 12, rest: 75 } : { sets: 3, low: 10, high: 15, rest: 60 };
+  return isCompound
+    ? { sets: 3, low: 8, high: 12, rest: 75 }
+    : { sets: 3, low: 10, high: 15, rest: 60 };
 }
 
 function matchesMuscle(ex: ExerciseRow, muscle: string): boolean {
@@ -158,7 +181,9 @@ export function generateTrainingPlan(
 
     // Label repeated session types A/B (e.g. two Push days → Push A / Push B).
     const repeated = split.sessions.filter((s) => s === type).length > 1;
-    const name = repeated ? `${blueprint.label} ${String.fromCharCode(65 + rotation)}` : blueprint.label;
+    const name = repeated
+      ? `${blueprint.label} ${String.fromCharCode(65 + rotation)}`
+      : blueprint.label;
 
     return { name, dayOfWeek: pattern[i], exercises };
   });

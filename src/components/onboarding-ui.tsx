@@ -4,8 +4,8 @@ import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-nativ
 export function ProgressBar({ step, total }: { step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
   return (
-    <View className="h-1.5 bg-bg-subtle rounded-full overflow-hidden">
-      <View className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} />
+    <View className="h-1.5 overflow-hidden rounded-full bg-bg-subtle">
+      <View className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
     </View>
   );
 }
@@ -13,8 +13,8 @@ export function ProgressBar({ step, total }: { step: number; total: number }) {
 export function StepHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <View className="gap-2">
-      <Text className="text-fg text-3xl font-bold tracking-tight">{title}</Text>
-      {subtitle ? <Text className="text-fg-muted text-base">{subtitle}</Text> : null}
+      <Text className="text-3xl font-bold tracking-tight text-fg">{title}</Text>
+      {subtitle ? <Text className="text-base text-fg-muted">{subtitle}</Text> : null}
     </View>
   );
 }
@@ -34,14 +34,14 @@ export function ChoiceCard({
   return (
     <Pressable
       onPress={onPress}
-      className={`rounded-2xl p-4 border ${
+      className={`rounded-2xl border p-4 ${
         selected ? 'border-accent bg-accent/10' : 'border-border bg-bg-elevated'
       } active:opacity-80`}
     >
       <Text className={`text-base font-semibold ${selected ? 'text-accent' : 'text-fg'}`}>
         {label}
       </Text>
-      {description ? <Text className="text-fg-muted text-sm mt-0.5">{description}</Text> : null}
+      {description ? <Text className="mt-0.5 text-sm text-fg-muted">{description}</Text> : null}
     </Pressable>
   );
 }
@@ -59,11 +59,11 @@ export function Chip({
   return (
     <Pressable
       onPress={onPress}
-      className={`rounded-full px-4 py-2 border ${
+      className={`rounded-full border px-4 py-2 ${
         selected ? 'border-accent bg-accent/10' : 'border-border bg-bg-subtle'
       } active:opacity-80`}
     >
-      <Text className={`text-sm ${selected ? 'text-accent font-semibold' : 'text-fg-muted'}`}>
+      <Text className={`text-sm ${selected ? 'font-semibold text-accent' : 'text-fg-muted'}`}>
         {label}
       </Text>
     </Pressable>
@@ -86,7 +86,7 @@ export function Field({
   maxLength?: number;
 }) {
   return (
-    <View className="flex-row items-center bg-bg-subtle rounded-2xl px-4 border border-border">
+    <View className="flex-row items-center rounded-2xl border border-border bg-bg-subtle px-4">
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -94,9 +94,9 @@ export function Field({
         placeholderTextColor="#6B6B76"
         keyboardType={keyboardType}
         maxLength={maxLength}
-        className="flex-1 text-fg py-4 text-base"
+        className="flex-1 py-4 text-base text-fg"
       />
-      {suffix ? <Text className="text-fg-faint text-base ml-2">{suffix}</Text> : null}
+      {suffix ? <Text className="ml-2 text-base text-fg-faint">{suffix}</Text> : null}
     </View>
   );
 }
@@ -116,12 +116,12 @@ export function PrimaryButton({
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
-      className="bg-accent rounded-2xl py-4 items-center active:opacity-80 disabled:opacity-40"
+      className="items-center rounded-2xl bg-accent py-4 active:opacity-80 disabled:opacity-40"
     >
       {loading ? (
         <ActivityIndicator color="#0B0B0F" />
       ) : (
-        <Text className="text-bg font-semibold text-base">{label}</Text>
+        <Text className="text-base font-semibold text-bg">{label}</Text>
       )}
     </Pressable>
   );

@@ -8,9 +8,11 @@ const INACTIVE = '#6B6B76';
 type IconName = keyof typeof Ionicons.glyphMap;
 
 function tabIcon(name: IconName) {
-  return ({ color, size }: { color: string; size: number }) => (
+  const Icon = ({ color, size }: { color: string; size: number }) => (
     <Ionicons name={name} color={color} size={size} />
   );
+  Icon.displayName = `TabIcon(${name})`;
+  return Icon;
 }
 
 export default function TabsLayout() {
@@ -28,14 +30,8 @@ export default function TabsLayout() {
         tabBarLabelStyle: { fontSize: 11 },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{ title: 'Home', tabBarIcon: tabIcon('home') }}
-      />
-      <Tabs.Screen
-        name="plan"
-        options={{ title: 'Plan', tabBarIcon: tabIcon('barbell') }}
-      />
+      <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: tabIcon('home') }} />
+      <Tabs.Screen name="plan" options={{ title: 'Plan', tabBarIcon: tabIcon('barbell') }} />
       <Tabs.Screen
         name="nutrition"
         options={{ title: 'Nutrition', tabBarIcon: tabIcon('restaurant') }}
@@ -44,10 +40,7 @@ export default function TabsLayout() {
         name="progress"
         options={{ title: 'Progress', tabBarIcon: tabIcon('stats-chart') }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{ title: 'Profile', tabBarIcon: tabIcon('person') }}
-      />
+      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: tabIcon('person') }} />
     </Tabs>
   );
 }

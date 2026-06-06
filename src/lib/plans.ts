@@ -89,7 +89,13 @@ async function saveTrainingPlan(userId: string, generated: GeneratedTrainingPlan
 
   const { data: plan, error: planErr } = await supabase
     .from('plans')
-    .insert({ user_id: userId, kind: 'training', name: generated.name, source: 'algorithm', is_active: true })
+    .insert({
+      user_id: userId,
+      kind: 'training',
+      name: generated.name,
+      source: 'algorithm',
+      is_active: true,
+    })
     .select('id')
     .single();
   if (planErr) throw planErr;
@@ -98,7 +104,13 @@ async function saveTrainingPlan(userId: string, generated: GeneratedTrainingPlan
     const w = generated.workouts[i];
     const { data: wRow, error: wErr } = await supabase
       .from('plan_workouts')
-      .insert({ plan_id: plan.id, user_id: userId, name: w.name, day_of_week: w.dayOfWeek, order_index: i })
+      .insert({
+        plan_id: plan.id,
+        user_id: userId,
+        name: w.name,
+        day_of_week: w.dayOfWeek,
+        order_index: i,
+      })
       .select('id')
       .single();
     if (wErr) throw wErr;
@@ -230,7 +242,13 @@ async function saveMealPlan(userId: string, generated: GeneratedMealPlan) {
 
   const { data: plan, error: planErr } = await supabase
     .from('plans')
-    .insert({ user_id: userId, kind: 'nutrition', name: generated.name, source: 'algorithm', is_active: true })
+    .insert({
+      user_id: userId,
+      kind: 'nutrition',
+      name: generated.name,
+      source: 'algorithm',
+      is_active: true,
+    })
     .select('id')
     .single();
   if (planErr) throw planErr;
@@ -293,7 +311,9 @@ export function useGenerateMealPlan(userId?: string) {
 
       const { data: goal, error: goalErr } = await supabase
         .from('user_goals')
-        .select('target_kcal, protein_g, carbs_g, fat_g, meals_per_day, diet_tags, excluded_allergens')
+        .select(
+          'target_kcal, protein_g, carbs_g, fat_g, meals_per_day, diet_tags, excluded_allergens',
+        )
         .eq('user_id', userId)
         .eq('is_active', true)
         .single();

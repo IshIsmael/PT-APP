@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../src/lib/supabase';
 import { useAuth } from '../../src/lib/auth';
@@ -130,10 +138,7 @@ export default function Onboarding() {
         weeklyRateKg: needsTarget ? weeklyRate : 0,
       });
 
-      const dietTags = [
-        ...(dietStyle === 'omnivore' ? [] : [dietStyle]),
-        ...extraTags,
-      ];
+      const dietTags = [...(dietStyle === 'omnivore' ? [] : [dietStyle]), ...extraTags];
       const equipmentArr =
         equipment === 'full_gym'
           ? ['full_gym']
@@ -199,15 +204,15 @@ export default function Onboarding() {
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View className="px-6 pt-2 pb-4 gap-3">
+        <View className="gap-3 px-6 pb-4 pt-2">
           <View className="flex-row items-center gap-3">
             {step > 0 && (
               <Pressable onPress={() => setStep((s) => s - 1)} hitSlop={12}>
-                <Text className="text-fg-muted text-base">‹ Back</Text>
+                <Text className="text-base text-fg-muted">‹ Back</Text>
               </Pressable>
             )}
             <View className="flex-1" />
-            <Text className="text-fg-faint text-xs">
+            <Text className="text-xs text-fg-faint">
               {step + 1} / {TOTAL_STEPS}
             </Text>
           </View>
@@ -242,7 +247,9 @@ export default function Onboarding() {
                   {(['male', 'female', 'unspecified'] as Sex[]).map((s) => (
                     <ChoiceCard
                       key={s}
-                      label={s === 'unspecified' ? 'Prefer not to say' : s[0].toUpperCase() + s.slice(1)}
+                      label={
+                        s === 'unspecified' ? 'Prefer not to say' : s[0].toUpperCase() + s.slice(1)
+                      }
                       selected={sex === s}
                       onPress={() => setSex(s)}
                     />
@@ -262,8 +269,16 @@ export default function Onboarding() {
               <>
                 <StepHeader title="Units" subtitle="You can change this later." />
                 <View className="gap-2">
-                  <ChoiceCard label="Metric (kg, cm)" selected={units === 'metric'} onPress={() => setUnits('metric')} />
-                  <ChoiceCard label="Imperial (lb, ft/in)" selected={units === 'imperial'} onPress={() => setUnits('imperial')} />
+                  <ChoiceCard
+                    label="Metric (kg, cm)"
+                    selected={units === 'metric'}
+                    onPress={() => setUnits('metric')}
+                  />
+                  <ChoiceCard
+                    label="Imperial (lb, ft/in)"
+                    selected={units === 'imperial'}
+                    onPress={() => setUnits('imperial')}
+                  />
                 </View>
               </>
             )}
@@ -272,18 +287,42 @@ export default function Onboarding() {
               <>
                 <StepHeader title="Your measurements" subtitle="Height and current weight." />
                 {units === 'metric' ? (
-                  <Field value={heightCm} onChangeText={setHeightCm} placeholder="Height" keyboardType="numeric" suffix="cm" />
+                  <Field
+                    value={heightCm}
+                    onChangeText={setHeightCm}
+                    placeholder="Height"
+                    keyboardType="numeric"
+                    suffix="cm"
+                  />
                 ) : (
                   <View className="flex-row gap-3">
                     <View className="flex-1">
-                      <Field value={heightFt} onChangeText={setHeightFt} placeholder="Height" keyboardType="number-pad" suffix="ft" />
+                      <Field
+                        value={heightFt}
+                        onChangeText={setHeightFt}
+                        placeholder="Height"
+                        keyboardType="number-pad"
+                        suffix="ft"
+                      />
                     </View>
                     <View className="flex-1">
-                      <Field value={heightIn} onChangeText={setHeightIn} placeholder="" keyboardType="number-pad" suffix="in" />
+                      <Field
+                        value={heightIn}
+                        onChangeText={setHeightIn}
+                        placeholder=""
+                        keyboardType="number-pad"
+                        suffix="in"
+                      />
                     </View>
                   </View>
                 )}
-                <Field value={weight} onChangeText={setWeight} placeholder="Current weight" keyboardType="numeric" suffix={weightSuffix} />
+                <Field
+                  value={weight}
+                  onChangeText={setWeight}
+                  placeholder="Current weight"
+                  keyboardType="numeric"
+                  suffix={weightSuffix}
+                />
               </>
             )}
 
@@ -291,10 +330,30 @@ export default function Onboarding() {
               <>
                 <StepHeader title="Your goal" subtitle="What are you here to do?" />
                 <View className="gap-2">
-                  <ChoiceCard label="Lose fat" description="Calorie deficit, keep your muscle." selected={goal === 'lose_fat'} onPress={() => setGoal('lose_fat')} />
-                  <ChoiceCard label="Build muscle" description="Slight surplus, progressive overload." selected={goal === 'build_muscle'} onPress={() => setGoal('build_muscle')} />
-                  <ChoiceCard label="Maintain / get healthier" description="Hold weight, build the habit." selected={goal === 'maintain'} onPress={() => setGoal('maintain')} />
-                  <ChoiceCard label="Body recomposition" description="Lose fat + build muscle together." selected={goal === 'recomp'} onPress={() => setGoal('recomp')} />
+                  <ChoiceCard
+                    label="Lose fat"
+                    description="Calorie deficit, keep your muscle."
+                    selected={goal === 'lose_fat'}
+                    onPress={() => setGoal('lose_fat')}
+                  />
+                  <ChoiceCard
+                    label="Build muscle"
+                    description="Slight surplus, progressive overload."
+                    selected={goal === 'build_muscle'}
+                    onPress={() => setGoal('build_muscle')}
+                  />
+                  <ChoiceCard
+                    label="Maintain / get healthier"
+                    description="Hold weight, build the habit."
+                    selected={goal === 'maintain'}
+                    onPress={() => setGoal('maintain')}
+                  />
+                  <ChoiceCard
+                    label="Body recomposition"
+                    description="Lose fat + build muscle together."
+                    selected={goal === 'recomp'}
+                    onPress={() => setGoal('recomp')}
+                  />
                 </View>
               </>
             )}
@@ -303,30 +362,75 @@ export default function Onboarding() {
               <>
                 <StepHeader title="Activity level" subtitle="Outside of your training." />
                 <View className="gap-2">
-                  <ChoiceCard label="Sedentary" description="Desk job, little movement." selected={activity === 'sedentary'} onPress={() => setActivity('sedentary')} />
-                  <ChoiceCard label="Lightly active" description="On your feet sometimes." selected={activity === 'light'} onPress={() => setActivity('light')} />
-                  <ChoiceCard label="Moderately active" description="Regular movement / steps." selected={activity === 'moderate'} onPress={() => setActivity('moderate')} />
-                  <ChoiceCard label="Active" description="Physical job or lots of steps." selected={activity === 'active'} onPress={() => setActivity('active')} />
-                  <ChoiceCard label="Very active" description="Hard physical work." selected={activity === 'very_active'} onPress={() => setActivity('very_active')} />
+                  <ChoiceCard
+                    label="Sedentary"
+                    description="Desk job, little movement."
+                    selected={activity === 'sedentary'}
+                    onPress={() => setActivity('sedentary')}
+                  />
+                  <ChoiceCard
+                    label="Lightly active"
+                    description="On your feet sometimes."
+                    selected={activity === 'light'}
+                    onPress={() => setActivity('light')}
+                  />
+                  <ChoiceCard
+                    label="Moderately active"
+                    description="Regular movement / steps."
+                    selected={activity === 'moderate'}
+                    onPress={() => setActivity('moderate')}
+                  />
+                  <ChoiceCard
+                    label="Active"
+                    description="Physical job or lots of steps."
+                    selected={activity === 'active'}
+                    onPress={() => setActivity('active')}
+                  />
+                  <ChoiceCard
+                    label="Very active"
+                    description="Hard physical work."
+                    selected={activity === 'very_active'}
+                    onPress={() => setActivity('very_active')}
+                  />
                 </View>
               </>
             )}
 
             {step === 6 && (
               <>
-                <StepHeader title="Target" subtitle={needsTarget ? 'Where do you want to get to?' : 'Maintaining — no target weight needed.'} />
+                <StepHeader
+                  title="Target"
+                  subtitle={
+                    needsTarget
+                      ? 'Where do you want to get to?'
+                      : 'Maintaining — no target weight needed.'
+                  }
+                />
                 {needsTarget ? (
                   <>
-                    <Field value={targetWeight} onChangeText={setTargetWeight} placeholder="Target weight" keyboardType="numeric" suffix={weightSuffix} />
-                    <Text className="text-fg-muted text-sm">Weekly pace</Text>
-                    <View className="flex-row gap-2 flex-wrap">
+                    <Field
+                      value={targetWeight}
+                      onChangeText={setTargetWeight}
+                      placeholder="Target weight"
+                      keyboardType="numeric"
+                      suffix={weightSuffix}
+                    />
+                    <Text className="text-sm text-fg-muted">Weekly pace</Text>
+                    <View className="flex-row flex-wrap gap-2">
                       {[0.25, 0.5, 0.75].map((r) => (
-                        <Chip key={r} label={`${units === 'metric' ? r + ' kg' : (r * 2.2).toFixed(1) + ' lb'}/wk`} selected={weeklyRate === r} onPress={() => setWeeklyRate(r)} />
+                        <Chip
+                          key={r}
+                          label={`${units === 'metric' ? r + ' kg' : (r * 2.2).toFixed(1) + ' lb'}/wk`}
+                          selected={weeklyRate === r}
+                          onPress={() => setWeeklyRate(r)}
+                        />
                       ))}
                     </View>
                   </>
                 ) : (
-                  <Text className="text-fg-faint text-sm">We'll set you to maintenance calories.</Text>
+                  <Text className="text-sm text-fg-faint">
+                    We’ll set you to maintenance calories.
+                  </Text>
                 )}
               </>
             )}
@@ -334,16 +438,33 @@ export default function Onboarding() {
             {step === 7 && (
               <>
                 <StepHeader title="Training" subtitle="Days per week and what you've got." />
-                <Text className="text-fg-muted text-sm">Training days / week</Text>
-                <View className="flex-row gap-2 flex-wrap">
+                <Text className="text-sm text-fg-muted">Training days / week</Text>
+                <View className="flex-row flex-wrap gap-2">
                   {[2, 3, 4, 5, 6].map((d) => (
-                    <Chip key={d} label={`${d}`} selected={trainingDays === d} onPress={() => setTrainingDays(d)} />
+                    <Chip
+                      key={d}
+                      label={`${d}`}
+                      selected={trainingDays === d}
+                      onPress={() => setTrainingDays(d)}
+                    />
                   ))}
                 </View>
-                <View className="gap-2 mt-2">
-                  <ChoiceCard label="Full gym" selected={equipment === 'full_gym'} onPress={() => setEquipment('full_gym')} />
-                  <ChoiceCard label="Home (dumbbells / bands)" selected={equipment === 'home'} onPress={() => setEquipment('home')} />
-                  <ChoiceCard label="Bodyweight only" selected={equipment === 'bodyweight'} onPress={() => setEquipment('bodyweight')} />
+                <View className="mt-2 gap-2">
+                  <ChoiceCard
+                    label="Full gym"
+                    selected={equipment === 'full_gym'}
+                    onPress={() => setEquipment('full_gym')}
+                  />
+                  <ChoiceCard
+                    label="Home (dumbbells / bands)"
+                    selected={equipment === 'home'}
+                    onPress={() => setEquipment('home')}
+                  />
+                  <ChoiceCard
+                    label="Bodyweight only"
+                    selected={equipment === 'bodyweight'}
+                    onPress={() => setEquipment('bodyweight')}
+                  />
                 </View>
               </>
             )}
@@ -353,19 +474,34 @@ export default function Onboarding() {
                 <StepHeader title="Diet" subtitle="Style, plus anything to avoid." />
                 <View className="gap-2">
                   {(['omnivore', 'vegetarian', 'vegan', 'pescatarian'] as DietStyle[]).map((d) => (
-                    <ChoiceCard key={d} label={d[0].toUpperCase() + d.slice(1)} selected={dietStyle === d} onPress={() => setDietStyle(d)} />
+                    <ChoiceCard
+                      key={d}
+                      label={d[0].toUpperCase() + d.slice(1)}
+                      selected={dietStyle === d}
+                      onPress={() => setDietStyle(d)}
+                    />
                   ))}
                 </View>
-                <Text className="text-fg-muted text-sm mt-2">Preferences</Text>
-                <View className="flex-row gap-2 flex-wrap">
+                <Text className="mt-2 text-sm text-fg-muted">Preferences</Text>
+                <View className="flex-row flex-wrap gap-2">
                   {['high_protein', 'keto'].map((t) => (
-                    <Chip key={t} label={t.replace('_', ' ')} selected={extraTags.includes(t)} onPress={() => setExtraTags((p) => toggle(p, t))} />
+                    <Chip
+                      key={t}
+                      label={t.replace('_', ' ')}
+                      selected={extraTags.includes(t)}
+                      onPress={() => setExtraTags((p) => toggle(p, t))}
+                    />
                   ))}
                 </View>
-                <Text className="text-fg-muted text-sm mt-2">Allergens to exclude</Text>
-                <View className="flex-row gap-2 flex-wrap">
+                <Text className="mt-2 text-sm text-fg-muted">Allergens to exclude</Text>
+                <View className="flex-row flex-wrap gap-2">
                   {ALLERGENS.map((a) => (
-                    <Chip key={a} label={a} selected={allergens.includes(a)} onPress={() => setAllergens((p) => toggle(p, a))} />
+                    <Chip
+                      key={a}
+                      label={a}
+                      selected={allergens.includes(a)}
+                      onPress={() => setAllergens((p) => toggle(p, a))}
+                    />
                   ))}
                 </View>
               </>
@@ -373,10 +509,18 @@ export default function Onboarding() {
 
             {step === 9 && (
               <>
-                <StepHeader title="Meals per day" subtitle="How you like to eat. Snacks are always quick-add." />
-                <View className="flex-row gap-2 flex-wrap">
+                <StepHeader
+                  title="Meals per day"
+                  subtitle="How you like to eat. Snacks are always quick-add."
+                />
+                <View className="flex-row flex-wrap gap-2">
                   {[2, 3, 4, 5, 6].map((m) => (
-                    <Chip key={m} label={`${m} meals`} selected={mealsPerDay === m} onPress={() => setMealsPerDay(m)} />
+                    <Chip
+                      key={m}
+                      label={`${m} meals`}
+                      selected={mealsPerDay === m}
+                      onPress={() => setMealsPerDay(m)}
+                    />
                   ))}
                 </View>
               </>
@@ -386,8 +530,18 @@ export default function Onboarding() {
               <>
                 <StepHeader title="Your plan" subtitle="How would you like to start?" />
                 <View className="gap-2">
-                  <ChoiceCard label="Generate a smart plan" description="Science-based, tailored to everything above. (Generation lands in Phase 3 — your targets are saved now.)" selected={planChoice === 'smart'} onPress={() => setPlanChoice('smart')} />
-                  <ChoiceCard label="Build my own" description="Start from scratch and add your own workouts & meals." selected={planChoice === 'own'} onPress={() => setPlanChoice('own')} />
+                  <ChoiceCard
+                    label="Generate a smart plan"
+                    description="Science-based, tailored to everything above. (Generation lands in Phase 3 — your targets are saved now.)"
+                    selected={planChoice === 'smart'}
+                    onPress={() => setPlanChoice('smart')}
+                  />
+                  <ChoiceCard
+                    label="Build my own"
+                    description="Start from scratch and add your own workouts & meals."
+                    selected={planChoice === 'own'}
+                    onPress={() => setPlanChoice('own')}
+                  />
                 </View>
               </>
             )}
