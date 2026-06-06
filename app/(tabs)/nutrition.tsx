@@ -1,5 +1,6 @@
 import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/lib/auth';
 import { useActiveMealPlan, useGenerateMealPlan } from '../../src/lib/plans';
 
@@ -11,6 +12,7 @@ const SLOT_LABEL: Record<string, string> = {
 };
 
 export default function Nutrition() {
+  const router = useRouter();
   const { session } = useAuth();
   const userId = session?.user.id;
   const { data: plan, isLoading } = useActiveMealPlan(userId);
@@ -45,6 +47,24 @@ export default function Nutrition() {
               </Text>
             </Pressable>
           )}
+        </View>
+
+        {/* Barcode + shopping list entry points */}
+        <View className="flex-row gap-3">
+          <Pressable
+            onPress={() => router.push('/scan')}
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-2xl border border-border bg-bg-elevated py-3 active:opacity-80"
+          >
+            <Text className="text-base text-fg">📷</Text>
+            <Text className="font-medium text-fg">Scan barcode</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/shopping')}
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-2xl border border-border bg-bg-elevated py-3 active:opacity-80"
+          >
+            <Text className="text-base text-fg">🛒</Text>
+            <Text className="font-medium text-fg">Shopping list</Text>
+          </Pressable>
         </View>
 
         {isLoading ? (
