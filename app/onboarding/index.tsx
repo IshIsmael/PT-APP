@@ -162,6 +162,13 @@ export default function Onboarding() {
         .eq('id', userId);
       if (profileErr) throw profileErr;
 
+      // Retire any previous active goal first, so re-running onboarding is clean.
+      await supabase
+        .from('user_goals')
+        .update({ is_active: false })
+        .eq('user_id', userId)
+        .eq('is_active', true);
+
       const { error: goalErr } = await supabase.from('user_goals').insert({
         user_id: userId,
         goal_type: goal ?? 'maintain',
@@ -178,13 +185,16 @@ export default function Onboarding() {
       });
       if (goalErr) throw goalErr;
 
-      // Baseline weight for analytics.
-      await supabase.from('weight_logs').insert({
-        user_id: userId,
-        weight_kg: Math.round(canonWeightKg * 100) / 100,
-        source: 'manual',
-        day: localDay(),
-      });
+      // Baseline weight for analytics (upsert so re-onboarding the same day is safe).
+      await supabase.from('weight_logs').upsert(
+        {
+          user_id: userId,
+          weight_kg: Math.round(canonWeightKg * 100) / 100,
+          source: 'manual',
+          day: localDay(),
+        },
+        { onConflict: 'user_id,day,source' },
+      );
 
       await refreshOnboarding();
       // Root navigator routes to (tabs) once onboardingComplete flips true.
