@@ -32,7 +32,7 @@ Three-layer analytics model: typed logs → `log_events` stream → `daily_user_
 - [x] Verify: security advisor clean; anon access denied (RLS enforcing). Type-safe queries
       compile. Full two-user data-isolation test runs in Phase 2 (needs real auth users).
 
-## Phase 2 — Auth & Onboarding (auth-first)  ⏳ implemented, pending on-device verify
+## Phase 2 — Auth & Onboarding (auth-first)  ✅ DONE
 - [x] Email OTP sign-in (6-digit code; Expo-Go friendly). Google/Apple buttons present but
       inactive pending OAuth setup (Google creds + Apple Developer enrollment)
 - [x] Gate app behind auth; session persistence via AsyncStorage; onboarding gating
@@ -41,7 +41,8 @@ Three-layer analytics model: typed logs → `log_events` stream → `daily_user_
 - [x] Mifflin-St Jeor + macro-split engine computes real targets at finish
 - [x] Post-intake fork: Generate smart plan / Build my own (smart generation lands Phase 3)
 - [x] Custom SMTP (Resend) wired for reliable auth emails
-- [ ] Verify on device: sign in → onboard → targets saved → land on tabs (your test)
+- [x] Verify on device: sign in → onboard → targets saved → land on tabs ✅ (6-digit OTP,
+      Resend SMTP, Magic Link template with {{ .Token }})
 - [ ] Later: wire Google + Apple OAuth; "redo with input" plan regeneration
 
 ## Phase 3 — Algorithmic Plan Engine
