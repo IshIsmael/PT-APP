@@ -30,8 +30,19 @@ export async function recomputeDailySummary(userId: string, day: string) {
       .select('kcal,protein_g,carbs_g,fat_g,fiber_g,is_snack')
       .eq('user_id', userId)
       .eq('day', day),
-    supabase.from('liquid_logs').select('amount_ml').eq('user_id', userId).eq('day', day),
-    supabase.from('habit_logs').select('habit_type,value').eq('user_id', userId).eq('day', day),
+    supabase
+      .from('liquid_logs')
+      .select('amount_ml,liquid_type')
+      .eq('user_id', userId)
+      .eq('day', day),
+    // Order so .find() below deterministically takes the latest value per habit
+    // type when multiple sources (manual + wearable) exist for the same day.
+    supabase
+      .from('habit_logs')
+      .select('habit_type,value')
+      .eq('user_id', userId)
+      .eq('day', day)
+      .order('logged_at', { ascending: false }),
     supabase
       .from('weight_logs')
       .select('weight_kg')
@@ -73,7 +84,11 @@ export async function recomputeDailySummary(userId: string, day: string) {
     );
   }
 
-  const waterMl = sum(liquids.data, 'amount_ml');
+  // Only hydrating liquids count toward the water/hydration goal (exclude
+  // alcohol + soda, which dehydrate / aren't hydration).
+  const waterMl = (liquids.data ?? [])
+    .filter((l) => l.liquid_type !== 'alcohol' && l.liquid_type !== 'soda')
+    .reduce((a, l) => a + (l.amount_ml || 0), 0);
   const steps = habits.data?.find((h) => h.habit_type === 'steps')?.value ?? null;
   const sleepHrs = habits.data?.find((h) => h.habit_type === 'sleep')?.value ?? null;
 
@@ -81,10 +96,14 @@ export async function recomputeDailySummary(userId: string, day: string) {
   const targetProtein = goal.data?.protein_g ?? null;
   const targetWater = goal.data?.water_ml_goal ?? null;
 
+  // Calories are scored two-sided (over- and under-eating both reduce the
+  // score); protein is a "hit the floor" target.
+  const kcalScore = targetKcal
+    ? clamp01(1 - Math.min(Math.abs(kcal - targetKcal) / targetKcal, 1))
+    : null;
+  const proteinScore = targetProtein ? clamp01(protein / targetProtein) : null;
   const nutritionScore =
-    targetKcal && targetProtein
-      ? clamp01((clamp01(kcal / targetKcal) + clamp01(protein / targetProtein)) / 2)
-      : null;
+    kcalScore !== null && proteinScore !== null ? clamp01((kcalScore + proteinScore) / 2) : null;
   const habitScore = targetWater ? clamp01(waterMl / targetWater) : null;
   const trainingScore = completed.length > 0 ? 1 : 0;
   const parts = [nutritionScore, habitScore, trainingScore].filter((p): p is number => p !== null);

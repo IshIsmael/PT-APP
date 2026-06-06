@@ -79,13 +79,16 @@ export function useActiveTrainingPlan(userId?: string) {
 
 // ---------- Persist a generated training plan -------------------------------
 async function saveTrainingPlan(userId: string, generated: GeneratedTrainingPlan) {
-  // Deactivate any current active training plan (unique-active-per-kind index).
-  await supabase
+  // Deactivate any current active training plan first (the partial unique index
+  // plans_one_active_per_kind forbids two active plans of a kind). Must succeed
+  // before inserting the new active row, so check its error.
+  const { error: deErr } = await supabase
     .from('plans')
     .update({ is_active: false })
     .eq('user_id', userId)
     .eq('kind', 'training')
     .eq('is_active', true);
+  if (deErr) throw deErr;
 
   const { data: plan, error: planErr } = await supabase
     .from('plans')
@@ -233,12 +236,13 @@ export function useActiveMealPlan(userId?: string) {
 }
 
 async function saveMealPlan(userId: string, generated: GeneratedMealPlan) {
-  await supabase
+  const { error: deErr } = await supabase
     .from('plans')
     .update({ is_active: false })
     .eq('user_id', userId)
     .eq('kind', 'nutrition')
     .eq('is_active', true);
+  if (deErr) throw deErr;
 
   const { data: plan, error: planErr } = await supabase
     .from('plans')

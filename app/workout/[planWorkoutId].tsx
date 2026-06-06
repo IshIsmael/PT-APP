@@ -85,18 +85,19 @@ function WorkoutRunner({
     if (!wasDone && entry.ex.restSeconds) setRest(entry.ex.restSeconds);
   }
 
-  const doneCount = entries.reduce((a, e) => a + e.sets.filter((s) => s.done && s.reps).length, 0);
+  // A set "counts" only if it's marked done AND has positive reps — matching the
+  // server-side filter, so the enabled-Finish gate and the saved data agree.
+  const isLogged = (s: SetEntry) => s.done && parseInt(s.reps, 10) > 0;
+  const doneCount = entries.reduce((a, e) => a + e.sets.filter(isLogged).length, 0);
 
   function onFinish() {
     const exercises: FinishedExercise[] = entries.map((e) => ({
       exerciseId: e.ex.exerciseId,
       planWorkoutExerciseId: e.ex.id,
-      sets: e.sets
-        .filter((s) => s.done && s.reps)
-        .map((s) => ({
-          weightKg: s.weight ? parseFloat(s.weight) : null,
-          reps: parseInt(s.reps, 10),
-        })),
+      sets: e.sets.filter(isLogged).map((s) => ({
+        weightKg: s.weight ? parseFloat(s.weight.replace(',', '.')) : null,
+        reps: parseInt(s.reps, 10),
+      })),
     }));
     finish.mutate(
       { planWorkoutId: workout.id, name: workout.name, mode: 'standard', startedAt, exercises },

@@ -318,7 +318,7 @@ export default function Home() {
               setModal({
                 title: 'Steps today',
                 suffix: 'steps',
-                initial: consumed.steps ? `${consumed.steps}` : '',
+                initial: consumed.steps !== null ? `${consumed.steps}` : '',
                 onSubmit: (v) => logHabit.mutate({ habitType: 'steps', value: v }),
               })
             }
@@ -333,7 +333,10 @@ export default function Home() {
                 title: 'Sleep last night',
                 suffix: 'hours',
                 decimal: true,
-                initial: consumed.sleepMinutes ? `${(consumed.sleepMinutes / 60).toFixed(1)}` : '',
+                initial:
+                  consumed.sleepMinutes !== null
+                    ? `${(consumed.sleepMinutes / 60).toFixed(1)}`
+                    : '',
                 onSubmit: (v) => logHabit.mutate({ habitType: 'sleep', value: v }),
               })
             }
@@ -346,7 +349,7 @@ export default function Home() {
                 title: 'Body weight',
                 suffix: 'kg',
                 decimal: true,
-                initial: consumed.weightKg ? `${consumed.weightKg}` : '',
+                initial: consumed.weightKg !== null ? `${consumed.weightKg}` : '',
                 onSubmit: (v) => logWeight.mutate(v),
               })
             }

@@ -138,7 +138,11 @@ function pickExercise(
 
   const byAllowed = candidates.filter((e) => e.equipment && allowed.has(e.equipment));
   const byBodyweight = candidates.filter((e) => e.equipment === 'bodyweight');
-  const pool = byAllowed.length ? byAllowed : byBodyweight.length ? byBodyweight : candidates;
+  // Only ever prescribe equipment the user actually has (bodyweight always
+  // works). If neither matches, skip the slot rather than prescribe a movement
+  // they can't perform.
+  const pool = byAllowed.length ? byAllowed : byBodyweight;
+  if (pool.length === 0) return null;
 
   pool.sort((a, b) => Number(b.is_compound) - Number(a.is_compound));
   return pool[rotation % pool.length];
@@ -355,16 +359,21 @@ export function generateMealPlan(pool: FoodRow[], input: MealInput): GeneratedMe
       cF += m.fat;
     };
 
+    // Protein source, scaled to the meal's protein target (lower floor on snacks
+    // so a dense protein food doesn't blow a tiny snack's budget).
+    const proteinFloor = slot === 'snack' ? 15 : 30;
     const p = proteins[i % Math.max(proteins.length, 1)];
-    if (p) push(p, clamp((tP * 100) / Math.max(num(p.protein_per_100g), 1), 30, 350));
+    if (p) push(p, clamp((tP * 100) / Math.max(num(p.protein_per_100g), 1), proteinFloor, 350));
+
+    // Veg/fruit BEFORE the carb source on main meals, so its carbs count against
+    // the carb budget (otherwise they'd inflate the meal above target).
+    if (slot !== 'snack' && vegs.length) push(vegs[i % vegs.length], 100);
 
     const c = carbs[i % Math.max(carbs.length, 1)];
     if (c) push(c, clamp(((tC - cC) * 100) / Math.max(num(c.carbs_per_100g), 1), 0, 400));
 
     const fa = fats[i % Math.max(fats.length, 1)];
     if (fa) push(fa, clamp(((tF - cF) * 100) / Math.max(num(fa.fat_per_100g), 1), 0, 60));
-
-    if (slot !== 'snack' && vegs.length) push(vegs[i % vegs.length], 100);
 
     const total = items.reduce(
       (acc, it) => ({

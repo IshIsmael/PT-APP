@@ -60,7 +60,7 @@ Three-layer analytics model: typed logs → `log_events` stream → `daily_user_
 - [ ] Later: edit individual workouts/meals; "redo with extra input"; tune meal-macro precision;
       per-day meal variety; expand library with home/bodyweight exercise variants
 
-## Phase 4 — The Logging Loop (the spine)  ✅ core done, pending on-device verify
+## Phase 4 — The Logging Loop (the spine) ✅ core done, pending on-device verify
 
 - [x] Logging layer: each log writes typed row → log_events stream → recomputes
       daily_user_summaries cache (adherence scores). src/lib/logging.ts + workout.ts

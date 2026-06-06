@@ -25,7 +25,8 @@ export function NumberModal({
 }: Props) {
   const [val, setVal] = useState(initial);
 
-  const num = parseFloat(val);
+  // Normalize comma decimal separators (comma-locale keyboards) before parsing.
+  const num = parseFloat(val.replace(',', '.'));
   const valid = !Number.isNaN(num) && num >= 0;
 
   return (
