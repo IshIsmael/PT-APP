@@ -80,12 +80,15 @@ Three-layer analytics model: typed logs → `log_events` stream → `daily_user_
 - [ ] Manual fallback when unavailable/denied
 - [ ] Verify: phone health data flows into habit chips + weight trend
 
-## Phase 5 — Nutrition Tab, Barcode & Shopping List
+## Phase 5 — Nutrition Tab, Barcode & Shopping List  ✅ core done, pending on-device verify
 
-- [ ] Nutrition tab: meal plan CRUD/generate, macro/calorie views
-- [ ] Open Food Facts: barcode scan (expo-camera) → fetch → cache to foods; show health info
-- [ ] Shopping list auto-derived from meal plan + manual add; barcode scan ticks items off
-- [ ] Verify: scan real products → correct nutrition, list item checks off, macros update
+- [x] Nutrition tab: meal plan generate + macro/calorie views (Phase 3); Scan + Shopping entry points
+- [x] Open Food Facts: barcode scan (expo-camera) → fetch product (macros + nutriscore) → log as snack
+- [x] Shopping list auto-derived from meal plan ingredients + manual add + check-off + clear;
+      barcode scan ticks off a matching item
+- [ ] On-device verify: scan a real product → correct nutrition; generate list → check items off
+- [ ] Later: cache scanned products to `foods`; manual-entry fallback for unknown barcodes;
+      quantity editing on the scan log
 
 ## Phase 6 — Progress, Insights & Streaks
 
