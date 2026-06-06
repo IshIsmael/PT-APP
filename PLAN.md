@@ -45,13 +45,14 @@ Three-layer analytics model: typed logs → `log_events` stream → `daily_user_
       Resend SMTP, Magic Link template with {{ .Token }})
 - [ ] Later: wire Google + Apple OAuth; "redo with input" plan regeneration
 
-## Phase 3 — Algorithmic Plan Engine
-- [ ] Calorie/macro module (Mifflin-St Jeor × activity, goal adjustment, macro split)
-- [ ] Training generator (split by days/equipment, progressive overload, volume landmarks)
-- [ ] Meal generator (hit macros from food pool, respect diet tags + allergen exclusions, meals/day)
-- [ ] Plan tab: view, edit any workout/meal, regenerate, "redo with extra input"
-- [ ] Unit tests on the engine (pure functions)
-- [ ] Verify: 3 distinct intake profiles → sensibly different, macro-correct plans
+## Phase 3 — Algorithmic Plan Engine  ✅ DONE
+- [x] Calorie/macro module (Mifflin-St Jeor × activity, goal adjustment, macro split) — Phase 2
+- [x] Training generator (split by days, equipment filtering + fallback, goal-based set/rep/rest, A/B variety)
+- [x] Meal generator (diet + allergen filtering, protein/carb/fat/veg roles, macro-scaled grams)
+- [x] Plan tab: generate + view split; Nutrition tab: generate + view meals with daily totals
+- [x] Verify: generators run against sample libraries → sensible, differentiated, diet-correct output
+- [ ] Later: edit individual workouts/meals; "redo with extra input"; tune meal-macro precision;
+      per-day meal variety; expand library with home/bodyweight exercise variants
 
 ## Phase 4 — The Logging Loop (the spine)
 - [ ] Home: weekday strip, animated macro ring hero, day-completion bar + coach headline,

@@ -2,6 +2,8 @@ import type { Database } from './database.types';
 
 type Goal = Database['public']['Enums']['goal_type'];
 export type ExerciseRow = Database['public']['Tables']['exercises']['Row'];
+export type FoodRow = Database['public']['Tables']['foods']['Row'];
+type MealSlot = Database['public']['Enums']['meal_slot'];
 
 // ============================================================================
 // Training plan generation
@@ -162,4 +164,210 @@ export function generateTrainingPlan(
   });
 
   return { name: `Smart Plan — ${split.name}`, workouts };
+}
+
+// ============================================================================
+// Meal plan generation
+// Filters the food pool by diet + allergens, then builds each meal from a
+// protein / carb / fat / veg source scaled to hit that meal's share of the
+// daily macros. One repeating day for v1 (per-day variety can come later).
+// ============================================================================
+
+export type MealInput = {
+  targetKcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  mealsPerDay: number;
+  dietTags: string[];
+  excludedAllergens: string[];
+};
+
+export type GeneratedMealItem = {
+  foodId: string;
+  name: string;
+  grams: number;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+};
+export type GeneratedMeal = {
+  slot: MealSlot;
+  name: string;
+  targetKcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  items: GeneratedMealItem[];
+};
+export type GeneratedMealPlan = {
+  name: string;
+  meals: GeneratedMeal[];
+};
+
+type FoodRole = 'protein' | 'carb' | 'fat' | 'veg';
+
+// Metadata keyed by the seeded food names (we control these).
+const FOOD_META: Record<string, { role: FoodRole; tags: string[] }> = {
+  'Chicken Breast (cooked)': { role: 'protein', tags: ['meat', 'animal'] },
+  'Lean Beef Mince 5% (cooked)': { role: 'protein', tags: ['meat', 'animal'] },
+  'Salmon Fillet (cooked)': { role: 'protein', tags: ['fish', 'animal'] },
+  'Tuna (canned in water)': { role: 'protein', tags: ['fish', 'animal'] },
+  'Whole Egg': { role: 'protein', tags: ['egg', 'animal'] },
+  'Egg White': { role: 'protein', tags: ['egg', 'animal'] },
+  'Greek Yogurt 0%': { role: 'protein', tags: ['dairy', 'animal'] },
+  'Whey Protein (generic)': { role: 'protein', tags: ['dairy', 'animal'] },
+  'Tofu (firm)': { role: 'protein', tags: ['plant', 'soy'] },
+  'Lentils (cooked)': { role: 'protein', tags: ['plant'] },
+  'Chickpeas (cooked)': { role: 'protein', tags: ['plant'] },
+  'White Rice (cooked)': { role: 'carb', tags: ['plant'] },
+  'Brown Rice (cooked)': { role: 'carb', tags: ['plant'] },
+  'Oats (dry)': { role: 'carb', tags: ['plant', 'gluten'] },
+  'Pasta (cooked)': { role: 'carb', tags: ['plant', 'gluten'] },
+  'Wholemeal Bread': { role: 'carb', tags: ['plant', 'gluten'] },
+  'Potato (boiled)': { role: 'carb', tags: ['plant'] },
+  'Sweet Potato (baked)': { role: 'carb', tags: ['plant'] },
+  Banana: { role: 'carb', tags: ['plant', 'fruit'] },
+  Apple: { role: 'veg', tags: ['plant', 'fruit'] },
+  Broccoli: { role: 'veg', tags: ['plant'] },
+  Avocado: { role: 'fat', tags: ['plant'] },
+  Almonds: { role: 'fat', tags: ['plant', 'nuts'] },
+  'Peanut Butter': { role: 'fat', tags: ['plant', 'nuts'] },
+  'Olive Oil': { role: 'fat', tags: ['plant'] },
+  'Whole Milk': { role: 'fat', tags: ['dairy', 'animal'] },
+  'Cheddar Cheese': { role: 'fat', tags: ['dairy', 'animal'] },
+};
+
+const ALLERGEN_TAG: Record<string, string> = {
+  dairy: 'dairy',
+  nuts: 'nuts',
+  gluten: 'gluten',
+  eggs: 'egg',
+  soy: 'soy',
+};
+
+function dietExcludes(tags: string[], dietTags: string[]): boolean {
+  const has = (t: string) => tags.includes(t);
+  if (dietTags.includes('vegan') && has('animal')) return true;
+  if (dietTags.includes('vegetarian') && (has('meat') || has('fish'))) return true;
+  if (dietTags.includes('pescatarian') && has('meat')) return true;
+  return false;
+}
+
+const num = (n: number | null): number => n ?? 0;
+
+function macrosAt(food: FoodRow, grams: number) {
+  const f = grams / 100;
+  return {
+    kcal: num(food.kcal_per_100g) * f,
+    protein: num(food.protein_per_100g) * f,
+    carbs: num(food.carbs_per_100g) * f,
+    fat: num(food.fat_per_100g) * f,
+    fiber: num(food.fiber_per_100g) * f,
+  };
+}
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(Math.max(n, lo), hi);
+
+function slotLayout(meals: number): MealSlot[] {
+  const order: MealSlot[] = ['breakfast', 'lunch', 'dinner'];
+  const out: MealSlot[] = [];
+  for (let i = 0; i < meals; i++) out.push(i < 3 ? order[i] : 'snack');
+  return out;
+}
+
+export function generateMealPlan(pool: FoodRow[], input: MealInput): GeneratedMealPlan {
+  const usable = pool.filter((f) => {
+    const meta = FOOD_META[f.name];
+    if (!meta) return false;
+    if (dietExcludes(meta.tags, input.dietTags)) return false;
+    for (const a of input.excludedAllergens) {
+      const tag = ALLERGEN_TAG[a];
+      if (tag && meta.tags.includes(tag)) return false;
+    }
+    return true;
+  });
+
+  const byRole = (role: FoodRole) => usable.filter((f) => FOOD_META[f.name].role === role);
+  const proteins = byRole('protein');
+  const carbs = byRole('carb');
+  const fats = byRole('fat');
+  const vegs = byRole('veg');
+
+  const meals = clamp(input.mealsPerDay, 2, 6);
+  const slots = slotLayout(meals);
+  const weights = slots.map((s) => (s === 'snack' ? 0.5 : 1));
+  const weightSum = weights.reduce((a, b) => a + b, 0);
+
+  const generated: GeneratedMeal[] = slots.map((slot, i) => {
+    const w = weights[i] / weightSum;
+    const tP = input.proteinG * w;
+    const tC = input.carbsG * w;
+    const tF = input.fatG * w;
+
+    const items: GeneratedMealItem[] = [];
+    let cC = 0;
+    let cF = 0;
+
+    const push = (food: FoodRow | undefined, grams: number) => {
+      if (!food || grams < 5) return;
+      const g = Math.round(grams);
+      const m = macrosAt(food, g);
+      items.push({
+        foodId: food.id,
+        name: food.name,
+        grams: g,
+        kcal: Math.round(m.kcal),
+        protein: Math.round(m.protein),
+        carbs: Math.round(m.carbs),
+        fat: Math.round(m.fat),
+        fiber: Math.round(m.fiber),
+      });
+      cC += m.carbs;
+      cF += m.fat;
+    };
+
+    const p = proteins[i % Math.max(proteins.length, 1)];
+    if (p) push(p, clamp((tP * 100) / Math.max(num(p.protein_per_100g), 1), 30, 350));
+
+    const c = carbs[i % Math.max(carbs.length, 1)];
+    if (c) push(c, clamp(((tC - cC) * 100) / Math.max(num(c.carbs_per_100g), 1), 0, 400));
+
+    const fa = fats[i % Math.max(fats.length, 1)];
+    if (fa) push(fa, clamp(((tF - cF) * 100) / Math.max(num(fa.fat_per_100g), 1), 0, 60));
+
+    if (slot !== 'snack' && vegs.length) push(vegs[i % vegs.length], 100);
+
+    const total = items.reduce(
+      (acc, it) => ({
+        kcal: acc.kcal + it.kcal,
+        protein: acc.protein + it.protein,
+        carbs: acc.carbs + it.carbs,
+        fat: acc.fat + it.fat,
+        fiber: acc.fiber + it.fiber,
+      }),
+      { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
+    );
+
+    const label = slot[0].toUpperCase() + slot.slice(1);
+    const name = items.length
+      ? `${label}: ${items.map((it) => it.name.split(' (')[0]).join(' + ')}`
+      : label;
+
+    return {
+      slot,
+      name,
+      targetKcal: Math.round(total.kcal),
+      protein: total.protein,
+      carbs: total.carbs,
+      fat: total.fat,
+      fiber: total.fiber,
+      items,
+    };
+  });
+
+  return { name: 'Smart Meal Plan', meals: generated };
 }
