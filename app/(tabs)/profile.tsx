@@ -40,9 +40,9 @@ export default function Profile() {
         </View>
 
         <View className="gap-3 rounded-3xl border border-border bg-bg-elevated p-5">
-          <Text className="text-lg font-semibold text-fg">Your daily targets</Text>
+          <Text className="font-semibold text-lg text-fg">Your daily targets</Text>
           {isLoading ? (
-            <ActivityIndicator color="#6EE7B7" />
+            <ActivityIndicator color="#E07A5F" />
           ) : goal ? (
             <>
               <Text className="text-sm text-fg-muted">
@@ -71,7 +71,7 @@ export default function Profile() {
           onPress={signOut}
           className="items-center rounded-2xl border border-border py-4 active:opacity-80"
         >
-          <Text className="text-base font-medium text-red-400">Sign out</Text>
+          <Text className="font-medium text-base text-red-400">Sign out</Text>
         </Pressable>
       </View>
     </SafeAreaView>

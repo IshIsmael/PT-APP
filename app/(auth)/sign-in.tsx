@@ -70,7 +70,7 @@ export default function SignIn() {
                 value={email}
                 onChangeText={setEmail}
                 placeholder="you@email.com"
-                placeholderTextColor="#6B6B76"
+                placeholderTextColor="#8C7B6C"
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
@@ -85,9 +85,9 @@ export default function SignIn() {
                 className="items-center rounded-2xl bg-accent py-4 active:opacity-80"
               >
                 {loading ? (
-                  <ActivityIndicator color="#0B0B0F" />
+                  <ActivityIndicator color="#171210" />
                 ) : (
-                  <Text className="text-base font-semibold text-bg">Send code</Text>
+                  <Text className="font-semibold text-base text-bg">Send code</Text>
                 )}
               </Pressable>
             </View>
@@ -97,7 +97,7 @@ export default function SignIn() {
                 value={code}
                 onChangeText={setCode}
                 placeholder="123456"
-                placeholderTextColor="#6B6B76"
+                placeholderTextColor="#8C7B6C"
                 keyboardType="number-pad"
                 inputMode="numeric"
                 maxLength={6}
@@ -111,9 +111,9 @@ export default function SignIn() {
                 className="items-center rounded-2xl bg-accent py-4 active:opacity-80 disabled:opacity-50"
               >
                 {loading ? (
-                  <ActivityIndicator color="#0B0B0F" />
+                  <ActivityIndicator color="#171210" />
                 ) : (
-                  <Text className="text-base font-semibold text-bg">Verify & continue</Text>
+                  <Text className="font-semibold text-base text-bg">Verify & continue</Text>
                 )}
               </Pressable>
               <Pressable onPress={() => setStage('email')} className="items-center py-2">
@@ -139,7 +139,7 @@ export default function SignIn() {
                 }
                 className="items-center rounded-2xl border border-border bg-bg-subtle py-4 opacity-60"
               >
-                <Text className="text-base font-medium text-fg">Continue with Google</Text>
+                <Text className="font-medium text-base text-fg">Continue with Google</Text>
               </Pressable>
               <Pressable
                 onPress={() =>
@@ -150,7 +150,7 @@ export default function SignIn() {
                 }
                 className="items-center rounded-2xl border border-border bg-bg-subtle py-4 opacity-60"
               >
-                <Text className="text-base font-medium text-fg">Continue with Apple</Text>
+                <Text className="font-medium text-base text-fg">Continue with Apple</Text>
               </Pressable>
             </View>
           )}

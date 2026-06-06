@@ -53,9 +53,9 @@ export default function Shopping() {
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Text className="text-base text-fg-muted">Close</Text>
         </Pressable>
-        <Text className="text-base font-semibold text-fg">Shopping list</Text>
+        <Text className="font-semibold text-base text-fg">Shopping list</Text>
         <Pressable onPress={onGenerate} disabled={generate.isPending} hitSlop={8}>
-          <Text className="text-sm font-medium text-accent">
+          <Text className="font-medium text-sm text-accent">
             {generate.isPending ? '…' : 'From plan'}
           </Text>
         </Pressable>
@@ -66,7 +66,7 @@ export default function Shopping() {
           value={draft}
           onChangeText={setDraft}
           placeholder="Add an item"
-          placeholderTextColor="#6B6B76"
+          placeholderTextColor="#8C7B6C"
           returnKeyType="done"
           onSubmitEditing={onAdd}
           className="flex-1 rounded-2xl border border-border bg-bg-subtle px-4 py-3 text-fg"
@@ -80,7 +80,7 @@ export default function Shopping() {
       </View>
 
       {isLoading ? (
-        <ActivityIndicator color="#6EE7B7" className="mt-8" />
+        <ActivityIndicator color="#E07A5F" className="mt-8" />
       ) : !items || items.length === 0 ? (
         <View className="mt-10 items-center gap-2 px-5">
           <Text className="text-fg-muted">Your list is empty.</Text>

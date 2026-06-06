@@ -38,7 +38,7 @@ export function ChoiceCard({
         selected ? 'border-accent bg-accent/10' : 'border-border bg-bg-elevated'
       } active:opacity-80`}
     >
-      <Text className={`text-base font-semibold ${selected ? 'text-accent' : 'text-fg'}`}>
+      <Text className={`font-semibold text-base ${selected ? 'text-accent' : 'text-fg'}`}>
         {label}
       </Text>
       {description ? <Text className="mt-0.5 text-sm text-fg-muted">{description}</Text> : null}
@@ -91,7 +91,7 @@ export function Field({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#6B6B76"
+        placeholderTextColor="#8C7B6C"
         keyboardType={keyboardType}
         maxLength={maxLength}
         className="flex-1 py-4 text-base text-fg"
@@ -119,9 +119,9 @@ export function PrimaryButton({
       className="items-center rounded-2xl bg-accent py-4 active:opacity-80 disabled:opacity-40"
     >
       {loading ? (
-        <ActivityIndicator color="#0B0B0F" />
+        <ActivityIndicator color="#171210" />
       ) : (
-        <Text className="text-base font-semibold text-bg">{label}</Text>
+        <Text className="font-semibold text-base text-bg">{label}</Text>
       )}
     </Pressable>
   );

@@ -7,7 +7,7 @@ import Svg, { Circle, Polyline } from 'react-native-svg';
 export function TrendLine({
   data,
   height = 130,
-  color = '#6EE7B7',
+  color = '#E07A5F',
 }: {
   data: { day: string; value: number }[];
   height?: number;
@@ -49,7 +49,7 @@ export function TrendLine({
 export function Bars({
   data,
   height = 90,
-  color = '#6EE7B7',
+  color = '#E07A5F',
 }: {
   data: { label: string; frac: number }[];
   height?: number;

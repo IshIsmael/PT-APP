@@ -25,7 +25,7 @@ export default function Plan() {
           <Text className="text-3xl font-bold text-fg">Plan</Text>
           {plan && (
             <Pressable onPress={onGenerate} disabled={generate.isPending} hitSlop={8}>
-              <Text className="text-sm font-medium text-accent">
+              <Text className="font-medium text-sm text-accent">
                 {generate.isPending ? 'Regenerating…' : 'Regenerate'}
               </Text>
             </Pressable>
@@ -33,10 +33,10 @@ export default function Plan() {
         </View>
 
         {isLoading ? (
-          <ActivityIndicator color="#6EE7B7" className="mt-8" />
+          <ActivityIndicator color="#E07A5F" className="mt-8" />
         ) : !plan ? (
           <View className="mt-4 gap-4 rounded-3xl border border-border bg-bg-elevated p-6">
-            <Text className="text-lg font-semibold text-fg">No training plan yet</Text>
+            <Text className="font-semibold text-lg text-fg">No training plan yet</Text>
             <Text className="text-sm text-fg-muted">
               Generate a science-based split tailored to your goal, training days, and equipment.
             </Text>
@@ -46,9 +46,9 @@ export default function Plan() {
               className="items-center rounded-2xl bg-accent py-4 active:opacity-80"
             >
               {generate.isPending ? (
-                <ActivityIndicator color="#0B0B0F" />
+                <ActivityIndicator color="#171210" />
               ) : (
-                <Text className="text-base font-semibold text-bg">Generate smart plan</Text>
+                <Text className="font-semibold text-base text-bg">Generate smart plan</Text>
               )}
             </Pressable>
           </View>
@@ -61,7 +61,7 @@ export default function Plan() {
                 className="gap-3 rounded-3xl border border-border bg-bg-elevated p-5"
               >
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-lg font-semibold text-fg">{w.name}</Text>
+                  <Text className="font-semibold text-lg text-fg">{w.name}</Text>
                   {w.dayOfWeek !== null && (
                     <View className="rounded-full bg-bg-subtle px-3 py-1">
                       <Text className="text-xs text-fg-muted">{DAYS[w.dayOfWeek]}</Text>
@@ -76,7 +76,7 @@ export default function Plan() {
                         <Text className="text-xs text-fg-faint">{e.restSeconds}s rest</Text>
                       ) : null}
                     </View>
-                    <Text className="text-sm font-medium text-accent">
+                    <Text className="font-medium text-sm text-accent">
                       {e.sets} × {e.repsLow}–{e.repsHigh}
                     </Text>
                   </View>

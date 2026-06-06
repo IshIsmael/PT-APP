@@ -20,9 +20,9 @@ export function MacroRing({ consumedKcal, targetKcal, protein, carbs, fat, size 
   const target = Math.max(targetKcal, 1);
 
   const rawSegs = [
-    { frac: (protein * 4) / target, color: '#60A5FA' },
-    { frac: (carbs * 4) / target, color: '#FBBF24' },
-    { frac: (fat * 9) / target, color: '#F472B6' },
+    { frac: (protein * 4) / target, color: '#D8674A' },
+    { frac: (carbs * 4) / target, color: '#E6B84C' },
+    { frac: (fat * 9) / target, color: '#9CA87E' },
   ];
 
   let cum = 0;
@@ -39,7 +39,7 @@ export function MacroRing({ consumedKcal, targetKcal, protein, carbs, fat, size 
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size}>
         <G rotation={-90} origin={`${cx}, ${cy}`}>
-          <Circle cx={cx} cy={cy} r={r} stroke="#1F1F29" strokeWidth={stroke} fill="none" />
+          <Circle cx={cx} cy={cy} r={r} stroke="#2C2219" strokeWidth={stroke} fill="none" />
           {arcs.map((a, i) =>
             a.f > 0 ? (
               <Circle
@@ -59,10 +59,17 @@ export function MacroRing({ consumedKcal, targetKcal, protein, carbs, fat, size 
         </G>
       </Svg>
       <View style={{ position: 'absolute', alignItems: 'center' }}>
-        <Text className="text-4xl font-bold text-fg">{Math.round(consumedKcal)}</Text>
-        <Text className="text-xs text-fg-faint">/ {Math.round(targetKcal)} kcal</Text>
-        <Text className="mt-1 text-xs text-fg-muted">
-          {remaining > 0 ? `${remaining} left` : 'target hit'}
+        <Text
+          className="text-5xl text-fg"
+          style={{ fontFamily: 'Fraunces_700Bold', fontVariant: ['tabular-nums'] }}
+        >
+          {Math.round(consumedKcal)}
+        </Text>
+        <Text className="text-xs text-fg-faint" style={{ fontVariant: ['tabular-nums'] }}>
+          of {Math.round(targetKcal)} kcal
+        </Text>
+        <Text className={`mt-1 text-xs ${remaining > 0 ? 'text-fg-muted' : 'text-sage'}`}>
+          {remaining > 0 ? `${remaining} to go` : 'nourished ✓'}
         </Text>
       </View>
     </View>

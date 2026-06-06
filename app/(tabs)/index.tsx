@@ -15,17 +15,26 @@ import {
   useTodaySummary,
   type LogMealInput,
 } from '../../src/lib/logging';
-import { buildInsights, useDailySummaries } from '../../src/lib/progress';
+import { buildInsights, computeStreak, useDailySummaries } from '../../src/lib/progress';
 import { MacroRing } from '../../src/components/MacroRing';
 import { NumberModal } from '../../src/components/NumberModal';
+import { Sprout } from '../../src/components/Sprout';
 
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DISPLAY_BOLD = 'Fraunces_700Bold';
 type MealSlot = LogMealInput['slot'];
 
 function startOfWeek(d: Date): Date {
   const out = new Date(d);
   out.setDate(d.getDate() - d.getDay());
   return out;
+}
+
+function greeting(d: Date): string {
+  const h = d.getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
 }
 
 function MacroBar({
@@ -95,6 +104,7 @@ export default function Home() {
     (weekSummaries ?? []).map((s) => [s.day, (s.adherence_score ?? 0) >= 0.6]),
   );
   const topInsight = buildInsights(weekSummaries ?? [])[0];
+  const streak = computeStreak(weekSummaries ?? []).current;
 
   // Next un-logged planned meal (skip ones already eaten or dismissed).
   const loggedPlanIds = new Set((loggedMeals ?? []).map((m) => m.plan_meal_id).filter(Boolean));
@@ -133,16 +143,16 @@ export default function Home() {
     <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
       <ScrollView contentContainerClassName="p-5 gap-4">
         <View className="flex-row items-center justify-between">
-          <View>
-            <Text className="text-base text-fg-muted">
-              {today.toLocaleDateString(undefined, {
-                weekday: 'long',
-                month: 'short',
-                day: 'numeric',
-              })}
+          <View className="flex-1 pr-3">
+            <Text className="text-base text-fg-muted">{greeting(today)}</Text>
+            <Text className="text-4xl text-fg" style={{ fontFamily: DISPLAY_BOLD }}>
+              Today
             </Text>
-            <Text className="text-3xl font-bold tracking-tight text-fg">Today</Text>
+            <Text className="mt-1 text-sm text-fg-faint">
+              {streak > 0 ? `${streak}-day streak — keep showing up.` : 'Small steps still count.'}
+            </Text>
           </View>
+          <Sprout streak={streak} size={84} />
         </View>
 
         {/* Weekday strip */}
@@ -160,7 +170,7 @@ export default function Home() {
                   }`}
                 >
                   <Text
-                    className={`text-sm font-semibold ${isToday ? 'text-bg' : 'text-fg-muted'}`}
+                    className={`font-semibold text-sm ${isToday ? 'text-bg' : 'text-fg-muted'}`}
                   >
                     {d.getDate()}
                   </Text>
@@ -178,7 +188,7 @@ export default function Home() {
         {/* Macro ring hero */}
         <View className="items-center gap-4 rounded-3xl border border-border bg-bg-elevated p-5">
           {isLoading ? (
-            <ActivityIndicator color="#6EE7B7" className="my-16" />
+            <ActivityIndicator color="#E07A5F" className="my-16" />
           ) : (
             <>
               <MacroRing
@@ -193,19 +203,19 @@ export default function Home() {
                   label="Protein"
                   value={consumed.protein}
                   target={goal?.protein_g ?? null}
-                  color="#60A5FA"
+                  color="#D8674A"
                 />
                 <MacroBar
                   label="Carbs"
                   value={consumed.carbs}
                   target={goal?.carbs_g ?? null}
-                  color="#FBBF24"
+                  color="#E6B84C"
                 />
                 <MacroBar
                   label="Fat"
                   value={consumed.fat}
                   target={goal?.fat_g ?? null}
-                  color="#F472B6"
+                  color="#9CA87E"
                 />
               </View>
             </>
@@ -216,7 +226,7 @@ export default function Home() {
         {topInsight && (
           <View className="gap-1 rounded-3xl border border-border bg-bg-elevated p-5">
             <Text className="text-xs uppercase tracking-wide text-fg-faint">Insight</Text>
-            <Text className="text-base font-semibold text-fg">{topInsight.title}</Text>
+            <Text className="font-semibold text-base text-fg">{topInsight.title}</Text>
             <Text className="text-sm text-fg-muted">{topInsight.detail}</Text>
           </View>
         )}
@@ -226,7 +236,7 @@ export default function Home() {
           <Text className="text-xs uppercase tracking-wide text-fg-faint">Today’s session</Text>
           {todaysWorkout ? (
             <>
-              <Text className="text-lg font-semibold text-fg">{todaysWorkout.name}</Text>
+              <Text className="font-semibold text-lg text-fg">{todaysWorkout.name}</Text>
               <Text className="text-sm text-fg-muted">
                 {todaysWorkout.exercises.length} exercises ·{' '}
                 {todaysWorkout.exercises
@@ -258,7 +268,7 @@ export default function Home() {
             </Text>
           ) : nextMeal ? (
             <>
-              <Text className="text-base font-semibold text-fg">{nextMeal.name}</Text>
+              <Text className="font-semibold text-base text-fg">{nextMeal.name}</Text>
               <Text className="text-sm text-fg-muted">
                 {nextMeal.kcal} kcal · {nextMeal.protein}p {nextMeal.carbs}c {nextMeal.fat}f
               </Text>
@@ -407,7 +417,7 @@ function HabitChip({
       className="flex-1 gap-0.5 rounded-2xl border border-border bg-bg-elevated p-4 active:opacity-80"
     >
       <Text className="text-xs text-fg-faint">{label}</Text>
-      <Text className="text-base font-semibold text-fg">{value}</Text>
+      <Text className="font-semibold text-base text-fg">{value}</Text>
     </Pressable>
   );
 }

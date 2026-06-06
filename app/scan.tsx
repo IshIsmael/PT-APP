@@ -44,7 +44,7 @@ export default function Scan() {
   if (!permission) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-bg">
-        <ActivityIndicator color="#6EE7B7" />
+        <ActivityIndicator color="#E07A5F" />
       </SafeAreaView>
     );
   }
@@ -85,9 +85,9 @@ export default function Scan() {
       <SafeAreaView className="absolute inset-x-0 top-0">
         <View className="flex-row items-center justify-between p-5">
           <Pressable onPress={() => router.back()} hitSlop={8}>
-            <Text className="text-base font-medium text-white">Close</Text>
+            <Text className="font-medium text-base text-white">Close</Text>
           </Pressable>
-          <Text className="text-base font-semibold text-white">Scan barcode</Text>
+          <Text className="font-semibold text-base text-white">Scan barcode</Text>
           <View className="w-12" />
         </View>
       </SafeAreaView>
@@ -98,14 +98,14 @@ export default function Scan() {
           <View className="m-4 gap-3 rounded-3xl bg-bg-elevated p-5">
             {status === 'loading' && (
               <View className="items-center gap-2 py-4">
-                <ActivityIndicator color="#6EE7B7" />
+                <ActivityIndicator color="#E07A5F" />
                 <Text className="text-fg-muted">Looking up product…</Text>
               </View>
             )}
 
             {status === 'notfound' && (
               <>
-                <Text className="text-base font-semibold text-fg">Product not found</Text>
+                <Text className="font-semibold text-base text-fg">Product not found</Text>
                 <Text className="text-sm text-fg-muted">
                   Open Food Facts doesn’t have this barcode yet.
                 </Text>
@@ -119,7 +119,7 @@ export default function Scan() {
               <>
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1 pr-2">
-                    <Text className="text-base font-semibold text-fg">{product.name}</Text>
+                    <Text className="font-semibold text-base text-fg">{product.name}</Text>
                     {product.brand ? (
                       <Text className="text-sm text-fg-faint">{product.brand}</Text>
                     ) : null}

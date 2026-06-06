@@ -2,8 +2,8 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 // Dark-first tab bar. Colors mirror tailwind.config.js tokens (finalized in Phase 8).
-const ACTIVE = '#6EE7B7';
-const INACTIVE = '#6B6B76';
+const ACTIVE = '#E07A5F';
+const INACTIVE = '#8C7B6C';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 

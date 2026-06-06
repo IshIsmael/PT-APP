@@ -12,6 +12,9 @@ import {
 } from '../../src/lib/progress';
 import { localDay } from '../../src/lib/logging';
 import { Bars, TrendLine } from '../../src/components/charts';
+import { Sprout } from '../../src/components/Sprout';
+
+const DISPLAY_BOLD = 'Fraunces_700Bold';
 
 const BADGE_ICON: Record<string, string> = {
   flame: '🔥',
@@ -60,26 +63,29 @@ export default function Progress() {
   return (
     <SafeAreaView className="flex-1 bg-bg" edges={['top']}>
       <ScrollView contentContainerClassName="p-5 gap-4">
-        <Text className="text-3xl font-bold text-fg">Progress</Text>
+        <Text className="text-4xl text-fg" style={{ fontFamily: DISPLAY_BOLD }}>
+          Progress
+        </Text>
 
         {isLoading ? (
-          <ActivityIndicator color="#6EE7B7" className="mt-8" />
+          <ActivityIndicator color="#E07A5F" className="mt-8" />
         ) : (
           <>
-            {/* Streak */}
+            {/* Streak + sprout */}
             <View className="flex-row items-center justify-between rounded-3xl border border-border bg-bg-elevated p-5">
-              <View>
+              <View className="flex-1">
                 <Text className="text-xs uppercase tracking-wide text-fg-faint">
                   Current streak
                 </Text>
-                <Text className="text-3xl font-bold text-fg">
-                  🔥 {streak.current} {streak.current === 1 ? 'day' : 'days'}
+                <Text
+                  className="text-4xl text-fg"
+                  style={{ fontFamily: DISPLAY_BOLD, fontVariant: ['tabular-nums'] }}
+                >
+                  {streak.current} {streak.current === 1 ? 'day' : 'days'}
                 </Text>
+                <Text className="mt-1 text-sm text-fg-muted">Longest: {streak.longest} days</Text>
               </View>
-              <View className="items-end">
-                <Text className="text-xs text-fg-faint">Longest</Text>
-                <Text className="text-lg font-semibold text-fg">{streak.longest}</Text>
-              </View>
+              <Sprout streak={streak.current} size={96} />
             </View>
 
             {/* Insights */}
@@ -87,7 +93,7 @@ export default function Progress() {
               <View className="gap-2">
                 {insights.map((ins, i) => (
                   <View key={i} className="rounded-2xl border border-border bg-bg-elevated p-4">
-                    <Text className="text-sm font-semibold text-fg">{ins.title}</Text>
+                    <Text className="font-semibold text-sm text-fg">{ins.title}</Text>
                     <Text className="text-sm text-fg-muted">{ins.detail}</Text>
                   </View>
                 ))}
@@ -103,12 +109,12 @@ export default function Progress() {
             {/* Adherence */}
             <View className="gap-2 rounded-3xl border border-border bg-bg-elevated p-5">
               <Text className="text-xs uppercase tracking-wide text-fg-faint">Adherence (14d)</Text>
-              <Bars data={adherence} color="#6EE7B7" />
+              <Bars data={adherence} color="#E07A5F" />
             </View>
 
             {/* Badges */}
             <View className="gap-3 rounded-3xl border border-border bg-bg-elevated p-5">
-              <Text className="text-lg font-semibold text-fg">Badges</Text>
+              <Text className="font-semibold text-lg text-fg">Badges</Text>
               <View className="flex-row flex-wrap gap-3">
                 {(badges ?? []).map((b) => (
                   <View
@@ -118,7 +124,7 @@ export default function Progress() {
                     }`}
                   >
                     <Text className="text-2xl">{BADGE_ICON[b.icon ?? ''] ?? '🎖️'}</Text>
-                    <Text className="text-center text-xs font-medium text-fg">{b.name}</Text>
+                    <Text className="text-center font-medium text-xs text-fg">{b.name}</Text>
                   </View>
                 ))}
               </View>

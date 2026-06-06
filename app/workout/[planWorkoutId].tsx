@@ -29,7 +29,7 @@ export default function WorkoutScreen() {
     <SafeAreaView className="flex-1 bg-bg">
       {isLoading || !workout ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#6EE7B7" />
+          <ActivityIndicator color="#E07A5F" />
         </View>
       ) : (
         <WorkoutRunner workout={workout} userId={session?.user.id} />
@@ -115,7 +115,7 @@ function WorkoutRunner({
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Text className="text-base text-fg-muted">Close</Text>
         </Pressable>
-        <Text className="text-base font-semibold text-fg">{workout.name}</Text>
+        <Text className="font-semibold text-base text-fg">{workout.name}</Text>
         <Text className="text-xs text-fg-faint">{doneCount} sets</Text>
       </View>
 
@@ -126,7 +126,7 @@ function WorkoutRunner({
             className="gap-2 rounded-3xl border border-border bg-bg-elevated p-4"
           >
             <View className="flex-row items-center justify-between">
-              <Text className="text-base font-semibold text-fg">{entry.ex.name}</Text>
+              <Text className="font-semibold text-base text-fg">{entry.ex.name}</Text>
               <Text className="text-xs text-fg-faint">
                 {entry.ex.repsLow}–{entry.ex.repsHigh} reps
               </Text>
@@ -138,7 +138,7 @@ function WorkoutRunner({
                   value={s.weight}
                   onChangeText={(t) => updateSet(exIdx, setIdx, { weight: t })}
                   placeholder="kg"
-                  placeholderTextColor="#6B6B76"
+                  placeholderTextColor="#8C7B6C"
                   keyboardType="decimal-pad"
                   className="flex-1 rounded-xl border border-border bg-bg-subtle px-3 py-2.5 text-center text-fg"
                 />
@@ -147,7 +147,7 @@ function WorkoutRunner({
                   value={s.reps}
                   onChangeText={(t) => updateSet(exIdx, setIdx, { reps: t.replace(/[^0-9]/g, '') })}
                   placeholder="reps"
-                  placeholderTextColor="#6B6B76"
+                  placeholderTextColor="#8C7B6C"
                   keyboardType="number-pad"
                   className="flex-1 rounded-xl border border-border bg-bg-subtle px-3 py-2.5 text-center text-fg"
                 />
@@ -198,9 +198,9 @@ function WorkoutRunner({
           className="items-center rounded-2xl bg-accent py-4 active:opacity-80 disabled:opacity-40"
         >
           {finish.isPending ? (
-            <ActivityIndicator color="#0B0B0F" />
+            <ActivityIndicator color="#171210" />
           ) : (
-            <Text className="text-base font-semibold text-bg">Finish workout</Text>
+            <Text className="font-semibold text-base text-bg">Finish workout</Text>
           )}
         </Pressable>
       </View>

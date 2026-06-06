@@ -1,32 +1,44 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // NOTE: update this to include the paths to all files that contain Tailwind classes.
   content: ['./app/**/*.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
       colors: {
-        // Tola dark-first palette (placeholder accent — finalized in Phase 8 via moodboard)
+        // Tola — "grows with you": warm, organic, human. Earth tones, dark-first.
         bg: {
-          DEFAULT: '#0B0B0F', // app background (near-black)
-          elevated: '#16161D', // cards / sheets
-          subtle: '#1F1F29', // chips / inputs
+          DEFAULT: '#171210', // warm espresso (not cold black)
+          elevated: '#221A15', // cards / sheets
+          subtle: '#2C2219', // chips / inputs
         },
         fg: {
-          DEFAULT: '#F5F5F7', // primary text
-          muted: '#A1A1AA', // secondary text
-          faint: '#6B6B76', // tertiary / disabled
+          DEFAULT: '#F4EADE', // warm cream
+          muted: '#C5B3A1', // secondary
+          faint: '#8C7B6C', // tertiary / disabled
         },
         accent: {
-          DEFAULT: '#6EE7B7', // placeholder mint accent
-          muted: '#2DD4BF',
+          DEFAULT: '#E07A5F', // terracotta / clay
+          muted: '#C8624A',
         },
+        // Growth / positive signal.
+        sage: {
+          DEFAULT: '#9CA87E',
+          deep: '#7E8C63',
+        },
+        honey: '#E6B84C',
         macro: {
-          protein: '#60A5FA',
-          carbs: '#FBBF24',
-          fat: '#F472B6',
+          protein: '#D8674A', // clay
+          carbs: '#E6B84C', // honey
+          fat: '#9CA87E', // sage
         },
-        border: '#26262F',
+        border: '#3A2D24',
+      },
+      fontFamily: {
+        sans: ['Inter_400Regular', 'sans-serif'],
+        medium: ['Inter_500Medium', 'sans-serif'],
+        semibold: ['Inter_600SemiBold', 'sans-serif'],
+        display: ['Fraunces_600SemiBold', 'serif'],
+        'display-bold': ['Fraunces_700Bold', 'serif'],
       },
     },
   },

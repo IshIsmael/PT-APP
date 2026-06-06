@@ -29,7 +29,8 @@
         {
           "cameraPermission": "Tola uses the camera to scan product barcodes for nutrition info."
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }
