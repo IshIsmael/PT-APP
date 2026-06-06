@@ -90,14 +90,16 @@ Three-layer analytics model: typed logs → `log_events` stream → `daily_user_
 - [ ] Later: cache scanned products to `foods`; manual-entry fallback for unknown barcodes;
       quantity editing on the scan log
 
-## Phase 6 — Progress, Insights & Streaks
+## Phase 6 — Progress, Insights & Streaks ✅ core done, pending on-device verify
 
-- [ ] Aggregations over log_events (weight, volume, calories, adherence, macros over time)
-- [ ] Progress charts + supportive, data-backed insight cards
-- [ ] Streak engine (hit-daily-plan rule + grace) + milestone badges (consistency + body-goal)
-- [ ] Surface top insight on Home
-- [ ] (Optional) begin micronutrient tracking
-- [ ] Verify: seed 30 days → charts, insights, streaks, badges correct
+- [x] Aggregations over daily_user_summaries (weight, volume, calories, adherence over time)
+- [x] Progress tab: 90d weight trend (SVG) + 14d adherence bars + data-backed insight cards
+- [x] Streak engine (hit-daily-plan adherence ≥0.6 + grace for pending today) + longest
+- [x] Badge evaluation/awarding (streak 3/7/30, first workout/weigh-in, weight-change, goal,
+      hydration week, perfect week) → user_badges; badge grid on Progress
+- [x] Surface top insight + adherence dots on Home
+- [ ] On-device verify: log several days → streak, charts, insights, badges populate
+- [ ] Later: micronutrients; richer charts (calorie/volume trends); insight ranking
 
 ## Phase 7 — Monetization
 
