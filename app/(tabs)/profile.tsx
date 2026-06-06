@@ -1,8 +1,8 @@
 import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../src/lib/supabase';
 import { useAuth } from '../../src/lib/auth';
+import { useActiveGoal } from '../../src/lib/goals';
 
 const GOAL_LABEL: Record<string, string> = {
   lose_fat: 'Lose fat',
@@ -10,25 +10,6 @@ const GOAL_LABEL: Record<string, string> = {
   maintain: 'Maintain',
   recomp: 'Recomposition',
 };
-
-function useActiveGoal(userId?: string) {
-  return useQuery({
-    queryKey: ['active-goal', userId],
-    enabled: !!userId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_goals')
-        .select(
-          'goal_type, target_kcal, protein_g, carbs_g, fat_g, water_ml_goal, training_days_per_week, meals_per_day',
-        )
-        .eq('user_id', userId!)
-        .eq('is_active', true)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-}
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
