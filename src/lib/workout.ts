@@ -46,6 +46,34 @@ export function usePlanWorkout(planWorkoutId?: string) {
   });
 }
 
+// Most recent logged set per exercise — for prefill + a "last time" reference.
+export type LastPerf = Record<string, { weightKg: number | null; reps: number | null }>;
+
+export function useLastPerformance(userId?: string, exerciseIds: string[] = []) {
+  const key = [...exerciseIds].sort().join(',');
+  return useQuery({
+    queryKey: ['last-perf', userId, key],
+    enabled: !!userId && exerciseIds.length > 0,
+    queryFn: async (): Promise<LastPerf> => {
+      const { data, error } = await supabase
+        .from('set_logs')
+        .select('exercise_id, weight_kg, reps, completed_at')
+        .eq('user_id', userId!)
+        .in('exercise_id', exerciseIds)
+        .order('completed_at', { ascending: false })
+        .limit(300);
+      if (error) throw error;
+      const out: LastPerf = {};
+      for (const row of data ?? []) {
+        if (row.exercise_id && !out[row.exercise_id]) {
+          out[row.exercise_id] = { weightKg: row.weight_kg, reps: row.reps };
+        }
+      }
+      return out;
+    },
+  });
+}
+
 export type FinishedSet = { weightKg: number | null; reps: number | null };
 export type FinishedExercise = {
   exerciseId: string;
