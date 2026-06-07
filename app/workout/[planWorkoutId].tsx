@@ -25,6 +25,7 @@ import { hapticImpact, hapticSelect, hapticSuccess } from '../../src/lib/haptics
 import { RestRing } from '../../src/components/RestRing';
 import { NumberModal } from '../../src/components/NumberModal';
 import { Sprout } from '../../src/components/Sprout';
+import { ExerciseRail } from '../../src/components/ExerciseRail';
 
 const DISPLAY_BOLD = 'Fraunces_700Bold';
 type SetRow = { weight: number; reps: number; done: boolean };
@@ -291,41 +292,18 @@ function WorkoutRunner({
       </View>
 
       {/* Exercise rail */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerClassName="gap-2 px-5 pb-2"
-      >
-        {entries.map((e, i) => {
-          const done = e.sets.filter((s) => s.done).length;
-          const active = i === exIdx;
-          const complete = done === e.sets.length;
-          return (
-            <Pressable
-              key={e.ex.id}
-              onPress={() => goExercise(i)}
-              style={{ borderCurve: 'continuous' }}
-              className={`flex-row items-center gap-2 rounded-full border px-3 py-2 ${
-                active ? 'border-accent bg-accent/15' : 'border-border bg-bg-elevated'
-              }`}
-            >
-              <View
-                className={`h-5 w-5 items-center justify-center rounded-full ${
-                  complete ? 'bg-sage' : 'bg-bg-subtle'
-                }`}
-              >
-                <Text className="text-[10px] font-bold text-bg">{complete ? '✓' : i + 1}</Text>
-              </View>
-              <Text
-                className={`text-xs ${active ? 'font-semibold text-accent' : 'text-fg-muted'}`}
-                numberOfLines={1}
-              >
-                {e.ex.name.split(' ').slice(0, 2).join(' ')}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      <View className="pb-2">
+        <ExerciseRail
+          items={entries.map((e) => ({
+            id: e.ex.id,
+            name: e.ex.name,
+            done: e.sets.filter((s) => s.done).length,
+            total: e.sets.length,
+          }))}
+          activeIndex={exIdx}
+          onSelect={goExercise}
+        />
+      </View>
 
       <Animated.View style={{ flex: 1, opacity: fade }}>
         <ScrollView contentContainerClassName="px-5 pb-6 gap-5" keyboardShouldPersistTaps="handled">
